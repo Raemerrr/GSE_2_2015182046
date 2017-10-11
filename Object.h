@@ -18,7 +18,9 @@ public:
 	void setPosition(Data p);
 	Data getRGB();
 	void setRGB(Data p);
-	void update();
+	void Update(Data p);
+
+
 private:
 	Data Position;
 	Data Rgb;

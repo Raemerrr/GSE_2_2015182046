@@ -43,6 +43,10 @@ void Object::setRGB(Data rgb)
 	Rgb.s = rgb.s;
 }
 
-void Object::update()
+void Object::Update(Data pos)
 {
+	float elapsedTime = 1.5;
+	Position.x += pos.x*elapsedTime;
+	Position.y += pos.y*elapsedTime;
+	Position.z = pos.z*elapsedTime;
 }

@@ -1,9 +1,7 @@
 /*
 Copyright 2017 Lee Taek Hee (Korea Polytech University)
-
 This program is free software: you can redistribute it and/or modify
 it under the terms of the What The Hell License. Do it plz.
-
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY.
 */
@@ -21,7 +19,8 @@ but WITHOUT ANY WARRANTY.
 
 Renderer *g_Renderer = NULL;
 Object* obj = new Object[objectCount];
-using namespace std; 
+Data UpPos = { 1,1,0,1 };
+using namespace std;
 
 void RenderScene(void)
 {
@@ -31,12 +30,13 @@ void RenderScene(void)
 	// Renderer Test
 	//g_Renderer->DrawSolidRect(0, 0, 0, 4, 1, 0, 1, 1);
 
-	for (int i = 0; i < 50; ++i) {
+	for (int i = 0; i < objectCount; ++i) {
 		Data pos = obj[i].getPosition();
 		Data rgb = obj[i].getRGB();
 		// Renderer Test
 		g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s);
 	}
+	obj->Update(UpPos);
 
 	glutSwapBuffers();
 }
@@ -44,6 +44,7 @@ void RenderScene(void)
 void Idle(void)
 {
 	RenderScene();
+	obj->Update(UpPos);
 }
 
 void MouseInput(int button, int state, int x, int y)
@@ -97,6 +98,7 @@ int main(int argc, char **argv)
 		Data temp2 = { (char)rand() % 256, (char)rand() % 256, (char)rand() % 256,1.0 };
 		obj[i].setPosition(temp1);
 		obj[i].setRGB(temp2);
+		obj[i].setRGB(temp2);
 	}
 
 
@@ -109,7 +111,6 @@ int main(int argc, char **argv)
 	glutMainLoop();
 
 	delete g_Renderer;
-
-    return 0;
+	delete[] obj;
+	return 0;
 }
-

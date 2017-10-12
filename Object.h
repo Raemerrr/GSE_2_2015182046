@@ -9,7 +9,11 @@ typedef struct data {
 
 class Object
 {
-
+private:
+	Data Position;
+	Data Rgb;
+	float vX;
+	float vY;
 public:
 	Object();
 	~Object();
@@ -18,10 +22,5 @@ public:
 	void setPosition(Data p);
 	Data getRGB();
 	void setRGB(Data p);
-	void Update(Data p);
-
-
-private:
-	Data Position;
-	Data Rgb;
+	void Update();
 };

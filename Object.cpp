@@ -50,9 +50,17 @@ void Object::Update()
 	float elapsedTime = 0.2;
 	Position.x = Position.x + vX *elapsedTime;
 	Position.y = Position.y + vY * elapsedTime; //현재 0
-	if (Position.x > 250)
+	if (Position.x > 250) {
 		vX = -vX;
-
-	if (Position.x < -250)
+		vY = 1; //첫 충돌시 1로 변환.
+	}
+	if (Position.x < -250) {
 		vX = -vX;
+	}
+	if (Position.y > 250) {
+		vY = -vY;
+	}
+	if (Position.y < -250) {
+		vY = -vY;
+	}
 }

@@ -4,15 +4,15 @@
 Object::Object()
 {
 	Position.x = 0.0;
-	vX = 1.0; //X의 방향
 	Position.y = 0.0;
-	vY = 1.0; //Y의 방향
 	Position.z = 0.0;
 	Position.s = 0.0;
 	Rgb.x = 0.0;
 	Rgb.y = 0.0;
 	Rgb.z = 0.0;
 	Rgb.s = 1.0;
+	vX = 1.0; //X의 방향
+	vY = 1.0; //Y의 방향
 }
 
 Object::~Object()
@@ -48,8 +48,8 @@ void Object::setRGB(Data rgb)
 void Object::Update()
 {
 	float elapsedTime = 0.2;
-	Position.x = Position.x + vX *elapsedTime;
-	Position.y = Position.y + vY * elapsedTime; //현재 0
+	Position.x = Position.x + vX * elapsedTime;
+	Position.y = Position.y + vY * elapsedTime;
 	if (Position.x > 250) {
 		vX = -vX;
 	}

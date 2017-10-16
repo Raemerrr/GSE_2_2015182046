@@ -25,8 +25,7 @@ void RenderScene(void)
 	// Renderer Test
 	Data pos = obj->getPosition();
 	Data rgb = obj->getRGB();
-	// Renderer Test
-	//Data direction = obj->getDirection();
+
 	g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s);
 	//obj->Update();
 

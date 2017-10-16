@@ -10,11 +10,8 @@ but WITHOUT ANY WARRANTY.
 #include <iostream>
 #include "Dependencies\glew.h"
 #include "Dependencies\freeglut.h"
-
 #include "Renderer.h"
-
 #include "Object.h"
-
 
 Renderer *g_Renderer = NULL;
 Object* obj = new Object;
@@ -26,10 +23,10 @@ void RenderScene(void)
 	glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
 
 	// Renderer Test
-	//g_Renderer->DrawSolidRect(0, 0, 0, 4, 1, 0, 1, 1);
 	Data pos = obj->getPosition();
 	Data rgb = obj->getRGB();
 	// Renderer Test
+	//Data direction = obj->getDirection();
 	g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s);
 	//obj->Update();
 
@@ -59,6 +56,7 @@ void SpecialKeyInput(int key, int x, int y)
 
 int main(int argc, char **argv)
 {
+	srand((unsigned)time(NULL));
 	// Initialize GL things
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
@@ -82,13 +80,12 @@ int main(int argc, char **argv)
 	{
 		std::cout << "Renderer could not be initialized.. \n";
 	}
+	
 
-
-	Data temp1 = { 0,0,0,10 };
+	Data temp1 = { -250,0,0,30 };
 	Data temp2 = { (char)rand() % 256, (char)rand() % 256, (char)rand() % 256,1.0 };
 	obj->setPosition(temp1);
 	obj->setRGB(temp2);
-
 
 	glutDisplayFunc(RenderScene);
 	glutIdleFunc(Idle);

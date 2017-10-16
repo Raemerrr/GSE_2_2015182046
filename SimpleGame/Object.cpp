@@ -6,7 +6,7 @@ Object::Object()
 	Position.x = 0.0;
 	vX = 1.0; //X의 방향
 	Position.y = 0.0;
-	vY = 0.0; //Y의 방향
+	vY = 1.0; //Y의 방향
 	Position.z = 0.0;
 	Position.s = 0.0;
 	Rgb.x = 0.0;
@@ -52,7 +52,7 @@ void Object::Update()
 	Position.y = Position.y + vY * elapsedTime; //현재 0
 	if (Position.x > 250) {
 		vX = -vX;
-		vY = 1; //첫 충돌시 1로 변환.
+		//vY = -1; //첫 충돌시 1로 변환.
 	}
 	if (Position.x < -250) {
 		vX = -vX;

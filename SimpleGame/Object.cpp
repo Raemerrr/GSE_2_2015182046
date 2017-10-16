@@ -52,7 +52,6 @@ void Object::Update()
 	Position.y = Position.y + vY * elapsedTime; //현재 0
 	if (Position.x > 250) {
 		vX = -vX;
-		//vY = -1; //첫 충돌시 1로 변환.
 	}
 	if (Position.x < -250) {
 		vX = -vX;

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Object.h"
 
+using namespace std;
+
 Object::Object()
 {
 	Position.x = 0.0;
@@ -11,8 +13,13 @@ Object::Object()
 	Rgb.y = 0.0;
 	Rgb.z = 0.0;
 	Rgb.s = 1.0;
-	vX = 1.0; //X의 방향
-	vY = 1.0; //Y의 방향
+	vX = 0.0; //X의 방향
+	vY = 0.0; //Y의 방향
+	
+	Direction.x = 0.0;
+	Direction.y = 0.0;
+	Direction.z = 0.0;//삭제 유무
+	Direction.s = 0.0;//삭제 유무
 }
 
 Object::~Object()
@@ -45,9 +52,21 @@ void Object::setRGB(Data rgb)
 	Rgb.s = rgb.s;
 }
 
+Data Object::getDirection()
+{
+	return Direction;
+}
+
+void Object::setDirection(Data p)
+{
+	vX = p.x;
+	vY = p.y;
+}
+
 void Object::Update()
 {
-	float elapsedTime = 0.2;
+	
+	float elapsedTime = 0.05;
 	Position.x = Position.x + vX * elapsedTime;
 	Position.y = Position.y + vY * elapsedTime;
 	if (Position.x > 250) {

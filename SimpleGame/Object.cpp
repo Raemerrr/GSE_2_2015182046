@@ -65,20 +65,23 @@ void Object::setDirection(Data p)
 
 void Object::Update()
 {
-	
 	float elapsedTime = 0.05;
 	Position.x = Position.x + vX * elapsedTime;
 	Position.y = Position.y + vY * elapsedTime;
 	if (Position.x > 250) {
 		vX = -vX;
+		vY = rand() % 2;
 	}
 	if (Position.x < -250) {
 		vX = -vX;
+		vY = rand() % 2;
 	}
 	if (Position.y > 250) {
 		vY = -vY;
+		vX = rand() % 2;
 	}
 	if (Position.y < -250) {
 		vY = -vY;
+		vX = rand() % 2;
 	}
 }

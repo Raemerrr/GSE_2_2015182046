@@ -16,4 +16,5 @@ public:
 	void setObject(Object p);
 	void ObjectCreate(const int p);
 	void ObjectDelete();
+	void ObjectCollition(int i, int MAX, int Size);
 };

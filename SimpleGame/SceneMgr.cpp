@@ -86,7 +86,7 @@ void SceneMgr::ObjectCollition(int i, int MAX, int objectSize)
 		if ((Rect1.x - Size) < (Rect2.x + Size) && (Rect1.x + Size) > (Rect2.x - Size) && (Rect1.y - Size) < (Rect2.y + Size) && (Rect1.y + Size) > (Rect2.y - Size))
 		{
 			obj[i].setRGB(Red);
-			obj[j].setRGB(Red);
+			//obj[j].setRGB(Red);
 		}
 	}
 }

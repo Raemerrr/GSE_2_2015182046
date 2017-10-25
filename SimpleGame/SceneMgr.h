@@ -22,5 +22,5 @@ public:
 	void RendererDelete();
 	Renderer* getRenderer();
 	void setRenderer(Renderer p);
-	void ObjectCollition(int i, int MAX, int Size);
+	void ObjectCollition(int i, int& MAX, int Size);
 };

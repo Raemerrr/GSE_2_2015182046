@@ -20,8 +20,8 @@ Object::Object()
 	Direction.y = 0.0;
 	Direction.z = 0.0;//삭제 유무
 	Direction.s = 0.0;//삭제 유무
-	Life = 0.0; //라이프
-	lifeTime = 0.0; //라이프
+	objLife = 1000.0; //라이프
+	lifeTime = 100000.0; //라이프
 }
 
 Object::~Object()
@@ -65,9 +65,33 @@ void Object::setDirection(Data p)
 	vY = p.y;
 }
 
+float Object::getObjLife()
+{
+	return objLife;
+}
+
+void Object::setObjLife(float p)
+{
+	objLife += p;
+}
+
+float Object::getObjLifeTime()
+{
+	return lifeTime;
+}
+
+void Object::setObjLifeTime(float p)
+{
+	lifeTime = p;
+}
+
 void Object::Update(float elapsedTime)
 {
 	elapsedTime = elapsedTime / 1000.f;
+	if (!(lifeTime <= 0.0f))
+	{
+		lifeTime -= 1.0;
+	}
 	float objSpeed = 100;
 	Position.x = Position.x + vX * elapsedTime * objSpeed;
 	Position.y = Position.y + vY * elapsedTime * objSpeed;

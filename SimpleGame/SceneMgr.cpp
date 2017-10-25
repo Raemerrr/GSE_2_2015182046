@@ -14,27 +14,25 @@ SceneMgr::~SceneMgr()
 void SceneMgr::ObjectCreate(const int NUM, const int SIZE)
 {
 	obj = new Object[NUM]();
+	//for (int i = 0; i < NUM; ++i)
+	//{
+	//	Data temp1 = { (float)((rand() % 500) - 200),(float)(200 - (rand() % 500)),0,SIZE };
+	//	Data temp2 = { 255,255, 255,1.0 }; //흰색통일 
+	//	float checkX = 1;
+	//	float checkY = 1;
 
-	for (int i = 0; i < NUM; ++i)
-	{
-		Data temp1 = { (float)((rand() % 500) - 200),(float)(200 - (rand() % 500)),0,SIZE };
-		Data temp2 = { 255,255, 255,1.0 }; //흰색통일 
-		float checkX = 1;
-		float checkY = 1;
-
-		if (rand() % 2 == 1)
-		{
-			checkX *= -1;
-		}if (rand() % 2 == 1)
-		{
-			checkY *= -1;
-		}
-		Data temp3 = { checkX, checkY ,0.0f,0.0f };
-		obj[i].setPosition(temp1);
-		obj[i].setRGB(temp2);
-		obj[i].setDirection(temp3);
-	}
-
+	//	if (rand() % 2 == 1)
+	//	{
+	//		checkX *= -1;
+	//	}if (rand() % 2 == 1)
+	//	{
+	//		checkY *= -1;
+	//	}
+	//	Data temp3 = { checkX, checkY ,0.0f,0.0f };
+	//	obj[i].setPosition(temp1);
+	//	obj[i].setRGB(temp2);
+	//	obj[i].setDirection(temp3);
+	//}
 }
 
 void SceneMgr::ObjectDelete()
@@ -70,11 +68,12 @@ Renderer* SceneMgr::getRenderer() {
 void SceneMgr::setRenderer(Renderer p) {
 }
 
-void SceneMgr::ObjectCollition(int i, int MAX, int objectSize)
+void SceneMgr::ObjectCollition(int i, int& MAX, int objectSize)
 {
 	int Size = objectSize / 2;
 	Data Red = { 255,0, 0,1.0 }; //빨강통일 
 	Data White = { 255,255, 255,1.0 };
+	Data Blue = { 0.0,0.0,255,1.0 };
 	Data Rect1 = obj[i].getPosition();
 	for (int j = 0; j < MAX; ++j)
 	{
@@ -86,7 +85,13 @@ void SceneMgr::ObjectCollition(int i, int MAX, int objectSize)
 		if ((Rect1.x - Size) < (Rect2.x + Size) && (Rect1.x + Size) > (Rect2.x - Size) && (Rect1.y - Size) < (Rect2.y + Size) && (Rect1.y + Size) > (Rect2.y - Size))
 		{
 			obj[i].setRGB(Red);
-			//obj[j].setRGB(Red);
+			obj[i].setObjLife((-1.0));
 		}
+	}
+	if (obj[i].getObjLife() <= 0.0)
+	{
+		Data temp = {0.0,0.0,0.0,-1.0};
+		obj[i].setPosition(temp); //사이즈가 -1 이니 False 상태라 봄
+		MAX--;
 	}
 }

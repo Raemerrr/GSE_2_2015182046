@@ -15,7 +15,7 @@ private:
 	Data Direction;
 	float vX;
 	float vY;
-	float Life;
+	float objLife;
 	float lifeTime;
 
 public:
@@ -26,8 +26,12 @@ public:
 	void setPosition(Data p);
 	Data getRGB();
 	void setRGB(Data p);
-	Data Object::getDirection();
-	void Object::setDirection(Data p);
+	Data getDirection();
+	void setDirection(Data p);
+	float getObjLife();
+	void setObjLife(float a);
+	float getObjLifeTime();
+	void setObjLifeTime(float a);
 	void Update(float elapsedTime);
 
 };

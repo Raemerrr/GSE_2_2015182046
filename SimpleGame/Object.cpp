@@ -15,11 +15,13 @@ Object::Object()
 	Rgb.s = 1.0;
 	vX = 0.0; //X의 방향
 	vY = 0.0; //Y의 방향
-	
+
 	Direction.x = 0.0;
 	Direction.y = 0.0;
 	Direction.z = 0.0;//삭제 유무
 	Direction.s = 0.0;//삭제 유무
+	Life = 0.0; //라이프
+	lifeTime = 0.0; //라이프
 }
 
 Object::~Object()
@@ -63,11 +65,12 @@ void Object::setDirection(Data p)
 	vY = p.y;
 }
 
-void Object::Update()
+void Object::Update(float elapsedTime)
 {
-	float elapsedTime = 0.05;
-	Position.x = Position.x + vX * elapsedTime;
-	Position.y = Position.y + vY * elapsedTime;
+	elapsedTime = elapsedTime / 1000.f;
+	float objSpeed = 100;
+	Position.x = Position.x + vX * elapsedTime * objSpeed;
+	Position.y = Position.y + vY * elapsedTime * objSpeed;
 	if (Position.x > 250) {
 		vX = -vX;
 		vY = rand() % 2;

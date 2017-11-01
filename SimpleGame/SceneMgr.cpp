@@ -220,6 +220,11 @@ void SceneMgr::ObjectCollition(int& MAX, float updateTime)
 			{
 				continue;
 			}*/
+
+			if (obj_BUILDING[j].getObjLife() < 0.0f)
+			{
+				continue;
+			}
 			if ((Rect1.x - obj_Character_Size) < (Rect2.x + obj_Bulidong_Size) && (Rect1.x + obj_Character_Size) > (Rect2.x - obj_Bulidong_Size) && (Rect1.y - obj_Character_Size) < (Rect2.y + obj_Bulidong_Size) && (Rect1.y + obj_Character_Size) > (Rect2.y - obj_Bulidong_Size))
 			{
 				cout << "빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
@@ -232,11 +237,21 @@ void SceneMgr::ObjectCollition(int& MAX, float updateTime)
 				obj_BUILDING[j].setPosition(temp); //사이즈가 -1 이니 False 상태라 봄
 												   //delete &obj_BUILDING[i];
 												   //obj[i] = nullptr;
+				for (int r = 0; r < MAX_BULLET_COUNT; ++r)
+				{
+					Data temp2 = { 0.0,0.0,0.0,-1.0 };
+					obj_BULLET[r].setPosition(temp2);			//사이즈가 -1 이니 False 상태라 봄
+					obj_BULLET[r].fixedObjLife(-1.0f);			//-1로 라이프를 설정하면 충돌체크, 재발사 등 동작 하지 않음.
+				}
 			}
 		}
 		for (int q = 0; q < MAX_BULLET_COUNT; ++q)
 		{
 			Data Rect3 = obj_BULLET[q].getPosition();
+			if (obj_BULLET[q].getObjLife() < 0.0f)
+			{
+				continue;
+			}
 			if ((Rect1.x - obj_Character_Size) < (Rect3.x + obj_Bullet_Size) && (Rect1.x + obj_Character_Size) > (Rect3.x - obj_Bullet_Size) && (Rect1.y - obj_Character_Size) < (Rect3.y + obj_Bullet_Size) && (Rect1.y + obj_Character_Size) > (Rect3.y - obj_Bullet_Size))
 			{
 				//cout << "총알의 체력 : " << obj_BULLET[q].getObjLife() << endl;

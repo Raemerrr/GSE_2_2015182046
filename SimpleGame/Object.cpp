@@ -5,9 +5,9 @@ using namespace std;
 
 Object::Object()
 {
-	Position.x = 0.0;
-	Position.y = 0.0;
-	Position.z = 0.0;
+	Position.x = 999.0;		//겹치지 않는 위치에서 시작하기 위함.(맵상에 존재 않하는 것 처럼)
+	Position.y = 999.0;		//겹치지 않는 위치에서 시작하기 위함.
+	Position.z = 999.0;		//겹치지 않는 위치에서 시작하기 위함.
 	Position.s = 0.0;
 	Rgb.x = 0.0;
 	Rgb.y = 0.0;
@@ -21,7 +21,7 @@ Object::Object()
 	Direction.z = 0.0;//삭제 유무
 	Direction.s = 0.0;//삭제 유무
 	objLife = 1000.0; //라이프
-	lifeTime = 100000.0; //라이프
+	lifeTime = 1000.0; //라이프
 }
 
 Object::~Object()

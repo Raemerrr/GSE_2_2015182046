@@ -19,7 +19,7 @@ public:
 	~SceneMgr();
 	Object* getObject(int i, int Object_Type);
 	void setObject(Object p);
-	void ObjectCreate(const int p, const int q);
+	void ObjectCreate(const int q);
 	void ObjectAllDelete(const int p);
 	void RendererCreate();
 	void RendererDelete();

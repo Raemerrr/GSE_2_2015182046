@@ -32,6 +32,7 @@ public:
 	void setObjLife(float a);
 	float getObjLifeTime();
 	void setObjLifeTime(float a);
-	void Update(float elapsedTime);
+	void fixedObjLife(float p);
+	void Update(float elapsedTime, int OBJECT_TYPE);
 
 };

@@ -32,6 +32,7 @@ void RenderScene(void)
 	//그리기함수
 	SceneManager->ObjectDraw(OBJECT_CHARACTER);
 	SceneManager->ObjectDraw(OBJECT_BUILDING);
+	SceneManager->ObjectDraw(OBJECT_BULLET);
 	//충돌 체크 및 라이프, 라이프 타임 관리 //업데이트
 	SceneManager->ObjectCollition(CheckObjectCount, (float)updateTime);
 
@@ -82,8 +83,8 @@ void MouseInput(int button, int state, int x, int y)
 			std::cout << "클릭 해제되었습니다." << endl;
 			Data temp1 = { (float)x,(float)y,0,MAX_OBJECTS_SIZE };
 			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setPosition(temp1);
-			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setObjLifeTime(100000.0f);
-			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setObjLife(1000.0f);
+			/*SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setObjLifeTime(100000.0f);
+			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setObjLife(1000.0f);*/
 			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setRGB(White);
 			float checkX = 1;
 			float checkY = 1;
@@ -135,13 +136,10 @@ int main(int argc, char **argv)
 	}
 
 	SceneManager->RendererCreate();
-	SceneManager->ObjectCreate(MAX_OBJECTS_COUNT, OBJECT_CHARACTER); //객체생성
-	SceneManager->ObjectCreate(MAX_BUILDING_COUNT, OBJECT_BUILDING); //객체생성
-	for (int i = 0; i < MAX_BUILDING_COUNT; ++i)
-	{
-		Data temp1 = { 0.0f,0.0f,0.0f,MAX_BUILDING_SIZE };
-		SceneManager->getObject(i, OBJECT_BUILDING)->setPosition(temp1);
-	}
+	SceneManager->ObjectCreate(OBJECT_CHARACTER); //캐릭터 객체생성
+	SceneManager->ObjectCreate(OBJECT_BUILDING); //건물 객체생성
+	SceneManager->ObjectCreate(OBJECT_BULLET); //총알 객체생성
+
 	glutDisplayFunc(RenderScene);
 	glutIdleFunc(Idle);
 	glutKeyboardFunc(KeyInput);
@@ -151,12 +149,12 @@ int main(int argc, char **argv)
 	g_prevTime = timeGetTime();
 
 	glutMainLoop();
-	for (int i = 1; i <= 4; ++i)
+
+	for (int i = 1; i <= 3; ++i) // ARROW 추가되면 4까지
 	{
 		SceneManager->ObjectAllDelete(i);
 	}
 	SceneManager->RendererDelete();
 	
-
 	return 0;
 }

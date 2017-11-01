@@ -21,23 +21,52 @@ SceneMgr::~SceneMgr()
 {
 }
 
-void SceneMgr::ObjectCreate(const int NUM,int Object_Type)
+void SceneMgr::ObjectCreate(int Object_Type)
 {
 
 	if (Object_Type == OBJECT_CHARACTER)
 	{
-		obj = new Object[NUM]();
-	}else if (Object_Type == OBJECT_BUILDING)
+		obj = new Object[MAX_OBJECTS_COUNT]();
+	}
+	else if (Object_Type == OBJECT_BUILDING)
 	{
-		obj_BUILDING = new Object[NUM]();
+		obj_BUILDING = new Object[MAX_BUILDING_COUNT]();
+		for (int i = 0; i < MAX_BUILDING_COUNT; ++i) //건물 초기화
+		{
+			Data temp1 = { 0.0f,0.0f,0.0f,MAX_BUILDING_SIZE };
+			obj_BUILDING[i].setPosition(temp1);
+		}
+	}
+	else if (Object_Type == OBJECT_BULLET)
+	{
+		obj_BULLET = new Object[MAX_BULLET_COUNT]();
+		for (int i = 0; i < MAX_BULLET_COUNT; ++i)	//총알 초기화
+		{
+			float checkX = 1;
+			float checkY = 1;
 
-	}else if (Object_Type == OBJECT_BULLET)
-	{
-		obj_BULLET = new Object[NUM]();
+			if (rand() % 2 == 1)
+			{
+				checkX *= -1;
+			}if (rand() % 2 == 1)
+			{
+				checkY *= -1;
+			}
+			Data temp3 = { checkX,checkY,0.0f,0.0f };
+			obj_BULLET[i].setDirection(temp3);
+
+			/*int building_X = obj_BUILDING[i].getPosition().x;
+			int building_Y = obj_BUILDING[i].getPosition().y;*/
+			Data temp2 = { 0.0,0.0,0.0f,MAX_BULLET_SIZE };
+			Data RGB = { 0.0f,0.0f,255.0f,0.0f};
+			obj_BULLET[i].setPosition(temp2);
+			obj_BULLET[i].setRGB(RGB);
+			obj_BULLET[i].fixedObjLife(10.0f);
+		}
 	}
 	else
 	{
-		obj_ARROW = new Object[NUM]();
+		//obj_ARROW = new Object[NUM]();
 	}
 	//for (int i = 0; i < NUM; ++i)
 	//{
@@ -123,7 +152,7 @@ Renderer* SceneMgr::getRenderer() {
 void SceneMgr::setRenderer(Renderer p) {
 }
 
-void SceneMgr::ObjectCollition(int& MAX,float updateTime)
+void SceneMgr::ObjectCollition(int& MAX, float updateTime)
 {
 	//Data Red = { 255,0, 0,1.0 }; //빨강통일 
 	//Data White = { 255,255, 255,1.0 };
@@ -151,7 +180,7 @@ void SceneMgr::ObjectCollition(int& MAX,float updateTime)
 	//		}
 	//		if (obj[i].getObjLife() <= 0.0 || obj[i].getObjLifeTime() < 0.0f)
 	//		{
-	//			Data temp = { 0.0,0.0,0.0,(0.0) };
+	//			Data temp = { 0.0,0.0,0.0,-1.0 };
 	//			obj[i].setPosition(temp); //사이즈가 -1 이니 False 상태라 봄
 	//			MAX--;
 	//			//delete &obj[i];
@@ -168,37 +197,78 @@ void SceneMgr::ObjectCollition(int& MAX,float updateTime)
 	Data Red = { 255,0, 0,1.0 }; //빨강통일 
 	Data White = { 255,255, 255,1.0 };
 	Data Blue = { 0.0,0.0,255,1.0 };
+
+	int obj_Character_Size = MAX_OBJECTS_SIZE / 2;
+	int obj_Bulidong_Size = MAX_BUILDING_SIZE / 2;
+	int obj_Bullet_Size = MAX_BULLET_SIZE / 2;
+
+
 	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
 	{
+		if (obj[i].getPosition().s < 0.0f)	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
+		{
+			continue;
+		}
 		obj[i].setRGB(White);
-			int obj_Character_Size = MAX_OBJECTS_SIZE / 2;
-			int obj_Bulidong_Size = MAX_BUILDING_SIZE / 2;
-
-			Data Rect1 = obj[i].getPosition();
-			for (int j = 0; j < MAX_BUILDING_COUNT; ++j)
+		
+		Data Rect1 = obj[i].getPosition();
+		for (int j = 0; j < MAX_BUILDING_COUNT; ++j)
+		{
+			Data Rect2 = obj_BUILDING[j].getPosition();
+			//cout << "빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
+			/*if (i == j)
 			{
-				Data Rect2 = obj_BUILDING[j].getPosition();
-				//cout << "빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
-				/*if (i == j)
-				{
-					continue;
-				}*/
-				if ((Rect1.x - obj_Character_Size) < (Rect2.x + obj_Bulidong_Size) && (Rect1.x + obj_Character_Size) > (Rect2.x - obj_Bulidong_Size) && (Rect1.y - obj_Character_Size) < (Rect2.y + obj_Bulidong_Size) && (Rect1.y + obj_Character_Size) > (Rect2.y - obj_Bulidong_Size))
-				{
-					cout << "빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
-					obj[i].setRGB(Red);
-					obj_BUILDING[j].setObjLife((-0.20f));
-				}
-				if (obj_BUILDING[j].getObjLife() <= 0.0)//|| obj_BUILDING[i].getObjLifeTime() < 0.0f
-				{
-					Data temp = { 0.0,0.0,0.0,0.0 };
-					obj_BUILDING[j].setPosition(temp); //사이즈가 -1 이니 False 상태라 봄
-													   //delete &obj_BUILDING[i];
-													   //obj[i] = nullptr;
-				}
+				continue;
+			}*/
+			if ((Rect1.x - obj_Character_Size) < (Rect2.x + obj_Bulidong_Size) && (Rect1.x + obj_Character_Size) > (Rect2.x - obj_Bulidong_Size) && (Rect1.y - obj_Character_Size) < (Rect2.y + obj_Bulidong_Size) && (Rect1.y + obj_Character_Size) > (Rect2.y - obj_Bulidong_Size))
+			{
+				cout << "빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
+				obj[i].setRGB(Red);
+				obj_BUILDING[j].setObjLife((-0.20f));
 			}
-				obj[i].Update((float)updateTime);
-			//obj[i].Update((float)updateTime);
+			if (obj_BUILDING[j].getObjLife() <= 0.0)//|| obj_BUILDING[i].getObjLifeTime() < 0.0f
+			{
+				Data temp = { 0.0,0.0,0.0,-1.0 };
+				obj_BUILDING[j].setPosition(temp); //사이즈가 -1 이니 False 상태라 봄
+												   //delete &obj_BUILDING[i];
+												   //obj[i] = nullptr;
+			}
+		}
+		for (int q = 0; q < MAX_BULLET_COUNT; ++q)
+		{
+			Data Rect3 = obj_BULLET[q].getPosition();
+			if ((Rect1.x - obj_Character_Size) < (Rect3.x + obj_Bullet_Size) && (Rect1.x + obj_Character_Size) > (Rect3.x - obj_Bullet_Size) && (Rect1.y - obj_Character_Size) < (Rect3.y + obj_Bullet_Size) && (Rect1.y + obj_Character_Size) > (Rect3.y - obj_Bullet_Size))
+			{
+				//cout << "총알의 체력 : " << obj_BULLET[q].getObjLife() << endl;
+				obj[i].setRGB(Red);
+				obj_BULLET[q].setObjLife((-10.00f));
+			}
+			if (obj_BULLET[q].getObjLife() <= 0.0)//|| obj_BUILDING[i].getObjLifeTime() < 0.0f
+			{
+				Data temp = { 0.0,0.0,0.0,MAX_BULLET_SIZE };
+				obj_BULLET[q].setPosition(temp);			//사이즈가 -1 이니 False 상태라 봄
+				obj_BULLET[q].fixedObjLife(10.0f);			//delete &obj_BUILDING[i];
+														    //obj[i] = nullptr;
+				float checkX = 1;
+				float checkY = 1;
+
+				if (rand() % 2 == 1)
+				{
+					checkX *= -1;
+				}if (rand() % 2 == 1)
+				{
+					checkY *= -1;
+				}
+				Data temp3 = { checkX,checkY,0.0f,0.0f };
+				obj_BULLET[q].setDirection(temp3);
+
+			}
+			else
+			{
+				obj_BULLET[q].Update((float)updateTime, OBJECT_BULLET);
+			}
+		}
+		obj[i].Update((float)updateTime, OBJECT_CHARACTER);
 	}
 }
 void SceneMgr::ObjectDraw(int Object_Type) {
@@ -228,11 +298,13 @@ void SceneMgr::ObjectDraw(int Object_Type) {
 	}
 	else if (Object_Type == OBJECT_BULLET)
 	{
-		for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
+		
+		for (int i = 0; i < MAX_BULLET_COUNT; ++i)
 		{
 			Data pos = obj_BULLET[i].getPosition();
 			Data rgb = obj_BULLET[i].getRGB();
 			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s);
+			
 		}
 	}
 	else

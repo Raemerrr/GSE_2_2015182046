@@ -17,7 +17,6 @@ private:
 	float vY;
 	float objLife;
 	float lifeTime;
-
 public:
 	Object();
 	~Object();

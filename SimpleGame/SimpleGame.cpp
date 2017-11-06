@@ -16,6 +16,7 @@ SceneMgr *SceneManager = new SceneMgr();
 bool g_LButtonDown = false; //마우스 클릭 확인
 DWORD g_prevTime = 0;	//이전 시간 확인 변수
 int CheckObjectCount = 0; //오브젝트 갯수 확인
+int BulleltSpawnTime = 0;
 
 using namespace std;
 
@@ -30,9 +31,15 @@ void RenderScene(void)
 
 	// Renderer Test
 	//그리기함수
-	SceneManager->ObjectDraw(OBJECT_CHARACTER);
-	SceneManager->ObjectDraw(OBJECT_BUILDING);
-	SceneManager->ObjectDraw(OBJECT_BULLET);
+	SceneManager->ObjectDraw(OBJECT_CHARACTER, BulleltSpawnTime);
+	SceneManager->ObjectDraw(OBJECT_BUILDING, BulleltSpawnTime);
+	//float BulleltSpawnTime = (float)updateTime;
+	BulleltSpawnTime += (int)updateTime;
+	
+	//cout << BulleltSpawnTime << endl;
+	SceneManager->ObjectDraw(OBJECT_BULLET, BulleltSpawnTime);
+	//cout << "x값 : "<< SceneManager->getObject(0, OBJECT_BULLET)->getPosition().x << " y값 : " << SceneManager->getObject(0, OBJECT_BULLET)->getPosition().y << " s값 : " << SceneManager->getObject(0, OBJECT_BULLET)->getPosition().s <<endl;
+	
 	//충돌 체크 및 라이프, 라이프 타임 관리 //업데이트
 	SceneManager->ObjectCollition(CheckObjectCount, (float)updateTime);
 
@@ -83,8 +90,8 @@ void MouseInput(int button, int state, int x, int y)
 			std::cout << "클릭 해제되었습니다." << endl;
 			Data temp1 = { (float)x,(float)y,0,MAX_OBJECTS_SIZE };
 			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setPosition(temp1);
-			/*SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setObjLifeTime(100000.0f);
-			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setObjLife(1000.0f);*/
+			/*SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setObjLifeTime(100000.0f);*/
+			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->fixedObjLife(1.0f);
 			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setRGB(White);
 			float checkX = 1;
 			float checkY = 1;

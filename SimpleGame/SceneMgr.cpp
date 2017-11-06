@@ -15,6 +15,8 @@ SceneMgr::SceneMgr()
 	obj_BULLET = NULL;
 	obj_ARROW = NULL;
 	g_Renderer = NULL;
+	bulletCount = 0;
+	emptyBullet = 0;
 }
 
 SceneMgr::~SceneMgr()
@@ -27,6 +29,10 @@ void SceneMgr::ObjectCreate(int Object_Type)
 	if (Object_Type == OBJECT_CHARACTER)
 	{
 		obj = new Object[MAX_OBJECTS_COUNT]();
+		/*for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
+		{
+			obj[i] = NULL;
+		}*/
 	}
 	else if (Object_Type == OBJECT_BUILDING)
 	{
@@ -55,11 +61,9 @@ void SceneMgr::ObjectCreate(int Object_Type)
 			Data temp3 = { checkX,checkY,0.0f,0.0f };
 			obj_BULLET[i].setDirection(temp3);
 
-			/*int building_X = obj_BUILDING[i].getPosition().x;
-			int building_Y = obj_BUILDING[i].getPosition().y;*/
-			Data temp2 = { 0.0,0.0,0.0f,MAX_BULLET_SIZE };
-			Data RGB = { 0.0f,0.0f,255.0f,0.0f};
-			obj_BULLET[i].setPosition(temp2);
+			/*Data temp2 = { 0.0f,0.0f,0.0f,0.0f };
+			obj_BULLET[i].setPosition(temp2);*/
+			Data RGB = { 0.0f,0.0f,255.0f,0.0f };
 			obj_BULLET[i].setRGB(RGB);
 			obj_BULLET[i].fixedObjLife(10.0f);
 		}
@@ -210,7 +214,7 @@ void SceneMgr::ObjectCollition(int& MAX, float updateTime)
 			continue;
 		}
 		obj[i].setRGB(White);
-		
+
 		Data Rect1 = obj[i].getPosition();
 		for (int j = 0; j < MAX_BUILDING_COUNT; ++j)
 		{
@@ -229,7 +233,15 @@ void SceneMgr::ObjectCollition(int& MAX, float updateTime)
 			{
 				cout << "빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
 				obj[i].setRGB(Red);
-				obj_BUILDING[j].setObjLife((-0.20f));
+				obj_BUILDING[j].setObjLife((-100.00f));
+				obj[i].setObjLife(-5.0f);
+			}
+			if (obj[i].getObjLife() <= 0.0f)
+			{
+				Data temp2 = { 0.0,0.0,0.0,-1.0 };
+				obj[i].setPosition(temp2);			//사이즈가 -1 이니 False 상태라 봄
+				//obj[i].fixedObjLife(-1.0f);			//-1로 라이프를 설정하면 충돌체크, 재발사 등 동작 하지 않음.
+				MAX--;
 			}
 			if (obj_BUILDING[j].getObjLife() <= 0.0)//|| obj_BUILDING[i].getObjLifeTime() < 0.0f
 			{
@@ -258,12 +270,12 @@ void SceneMgr::ObjectCollition(int& MAX, float updateTime)
 				obj[i].setRGB(Red);
 				obj_BULLET[q].setObjLife((-10.00f));
 			}
-			if (obj_BULLET[q].getObjLife() <= 0.0)//|| obj_BUILDING[i].getObjLifeTime() < 0.0f
+			if (obj_BULLET[q].getObjLife() < 0.0)//|| obj_BUILDING[i].getObjLifeTime() < 0.0f
 			{
 				Data temp = { 0.0,0.0,0.0,MAX_BULLET_SIZE };
 				obj_BULLET[q].setPosition(temp);			//사이즈가 -1 이니 False 상태라 봄
 				obj_BULLET[q].fixedObjLife(10.0f);			//delete &obj_BUILDING[i];
-														    //obj[i] = nullptr;
+															//obj[i] = nullptr;
 				float checkX = 1;
 				float checkY = 1;
 
@@ -286,7 +298,7 @@ void SceneMgr::ObjectCollition(int& MAX, float updateTime)
 		obj[i].Update((float)updateTime, OBJECT_CHARACTER);
 	}
 }
-void SceneMgr::ObjectDraw(int Object_Type) {
+void SceneMgr::ObjectDraw(int Object_Type, int& timeSet) {
 	if (Object_Type == OBJECT_CHARACTER)
 	{
 		for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
@@ -305,21 +317,59 @@ void SceneMgr::ObjectDraw(int Object_Type) {
 			//obj_BUILDING[i].setObjLife((1.0f));
 			//이곳에서 위와같은 셋 작업을 하게되면 무한 루프식으로 계속 값을 더해주거나, 그자리에 위치하게 만드니 하지말 것.
 
-
 			Data pos = obj_BUILDING[i].getPosition();
 			Data rgb = obj_BUILDING[i].getRGB();
 			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s);
+
+			
 		}
 	}
 	else if (Object_Type == OBJECT_BULLET)
 	{
-		
 		for (int i = 0; i < MAX_BULLET_COUNT; ++i)
 		{
+			/*if (obj_BULLET[i].getPosition().s < MAX_BULLET_SIZE)
+			{
+				bulletCount = i;
+			}*/
 			Data pos = obj_BULLET[i].getPosition();
 			Data rgb = obj_BULLET[i].getRGB();
 			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s);
-			
+
+			if (timeSet > 300)
+			{
+				/*Data temp2 = { 0.0f,0.0f,0.0f,MAX_BULLET_SIZE };
+				obj_BULLET[bulletCount].setPosition(temp2);
+				Data pos = obj_BUILDING[bulletCount].getPosition();
+				Data rgb = obj_BUILDING[bulletCount].getRGB();
+				if (bulletCount > MAX_BULLET_COUNT)
+				{
+
+				}*/
+				//cout << "bulletCount : " << bulletCount << endl;
+				float checkX = 1;
+				float checkY = 1;
+
+				if (rand() % 2 == 1)
+				{
+				checkX *= -1;
+				}if (rand() % 2 == 1)
+				{
+				checkY *= -1;
+				}
+
+				Data temp3 = { checkX,checkY,0.0f,0.0f };
+				obj_BULLET[bulletCount].setDirection(temp3);
+
+				Data temp2 = { 0.0f,0.0f,0.0f,MAX_BULLET_SIZE };
+				obj_BULLET[bulletCount].setPosition(temp2);
+				bulletCount++;
+				if (bulletCount > MAX_BULLET_COUNT)
+				{
+					bulletCount = 0;
+				}
+				timeSet = 0;
+			}
 		}
 	}
 	else

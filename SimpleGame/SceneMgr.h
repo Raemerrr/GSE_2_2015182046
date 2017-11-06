@@ -13,18 +13,20 @@ private:
 	Object* obj_BUILDING;
 	Object* obj_BULLET;
 	Object* obj_ARROW;
+	int bulletCount;
+	int emptyBullet;
 
 public:
 	SceneMgr();
 	~SceneMgr();
-	Object* getObject(int i, int Object_Type);
-	void setObject(Object p);
-	void ObjectCreate(const int q);
-	void ObjectAllDelete(const int p);
+	Object* getObject(int, int);
+	void setObject(Object);
+	void ObjectCreate(const int);
+	void ObjectAllDelete(const int);
 	void RendererCreate();
 	void RendererDelete();
 	Renderer* getRenderer();
-	void setRenderer(Renderer p);
-	void ObjectCollition(int& MAX, float updateTime);
-	void ObjectDraw(const int Object_Type);
+	void setRenderer(Renderer);
+	void ObjectCollition(int&, float);
+	void ObjectDraw(const int,int&);
 };

@@ -108,30 +108,33 @@ void Object::setObjLifeTime(float p)
 	lifeTime = p;
 }
 
-void Object::Update(float elapsedTime,int OBJECT_TYPE)
+void Object::Update(float elapsedTime, int OBJECT_TYPE)
 {
+
 	float objSpeed = 0.0f;
 	if (OBJECT_TYPE == OBJECT_CHARACTER)
 	{
 		objSpeed = 100.0f;
 	}
-	else if (OBJECT_BULLET)
+	else if (OBJECT_TYPE == OBJECT_BULLET)
 	{
 		objSpeed = 3.0f;
 	}
 
 	elapsedTime = elapsedTime / 1000.f;
-	if (!(lifeTime <= 0.0f))
+	//cout << bulletSpawnTime << endl; 
+	if (!(lifeTime <= 0.0f) && OBJECT_TYPE == OBJECT_CHARACTER)
 	{
 		lifeTime -= 1.0;
 	}
-	Position.x = Position.x + vX * elapsedTime * objSpeed;
-	Position.y = Position.y + vY * elapsedTime * objSpeed;
+
 	if (OBJECT_TYPE == OBJECT_CHARACTER)
 	{
+		Position.x = Position.x + vX * elapsedTime * objSpeed;  //이동구현
+		Position.y = Position.y + vY * elapsedTime * objSpeed;	//이동구현
 		if (Position.x > 250) {
 			vX = -vX;
-			vY =(float)(rand() % 2);
+			vY = (float)(rand() % 2);
 		}
 		if (Position.x < -250) {
 			vX = -vX;
@@ -145,10 +148,15 @@ void Object::Update(float elapsedTime,int OBJECT_TYPE)
 			vY = -vY;
 			vX = (float)(rand() % 2);
 		}
-	}else if (OBJECT_TYPE == OBJECT_BULLET)	{
+	}
+	else if (OBJECT_TYPE == OBJECT_BULLET) {
+		Position.x = Position.x + vX * elapsedTime * objSpeed;	//이동구현
+		Position.y = Position.y + vY * elapsedTime * objSpeed;	//이동구현
+		//cout << Position.x << endl;
+		//Position.s = MAX_BULLET_SIZE;
 		if (Position.x > 250 || Position.x < -250 || Position.y > 250 || Position.y < -250)
 		{
-			float checkX = 1;
+			/*float checkX = 1;
 			float checkY = 1;
 
 			if (rand() % 2 == 1)
@@ -159,12 +167,11 @@ void Object::Update(float elapsedTime,int OBJECT_TYPE)
 				checkY *= -1;
 			}
 			vX = checkX;
-			vY = checkY;
-			//Position.s = 0.0f;
+			vY = checkY;*/
+			Position.s = 0.0f;
 			Position.x = 0.0f;
 			Position.y = 0.0f;
-
+			//cout << "장소 이탈" << endl;
 		}
 	}
-	
 }

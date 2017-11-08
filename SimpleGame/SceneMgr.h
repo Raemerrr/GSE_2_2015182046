@@ -9,12 +9,15 @@ private:
 	float vX;
 	float vY;
 	Object* obj;
-	Renderer *g_Renderer;
+	Renderer* g_Renderer;
 	Object* obj_BUILDING;
 	Object* obj_BULLET;
 	Object* obj_ARROW;
 	int bulletCount;
-	int emptyBullet;
+	int arrowCount;
+	float bulletTimeSet;
+	float arrowTimeSet;
+	GLuint pngNum;
 
 public:
 	SceneMgr();
@@ -28,5 +31,5 @@ public:
 	Renderer* getRenderer();
 	void setRenderer(Renderer);
 	void ObjectCollition(int&, float);
-	void ObjectDraw(const int,int&);
+	void ObjectDraw(const int, float&);
 };

@@ -110,7 +110,6 @@ void Object::setObjLifeTime(float p)
 
 void Object::Update(float elapsedTime, int OBJECT_TYPE)
 {
-
 	float objSpeed = 0.0f;
 	if (OBJECT_TYPE == OBJECT_CHARACTER)
 	{
@@ -120,13 +119,19 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 	{
 		objSpeed = 3.0f;
 	}
+	else if (OBJECT_TYPE == OBJECT_ARROW)
+	{
+		objSpeed = 1.0f;
+	}
 
 	elapsedTime = elapsedTime / 1000.f;
 	//cout << bulletSpawnTime << endl; 
-	if (!(lifeTime <= 0.0f) && OBJECT_TYPE == OBJECT_CHARACTER)
+
+	//캐릭터 라이프타임 잠시 주석처리
+	/*if (!(lifeTime <= 0.0f) && OBJECT_TYPE == OBJECT_CHARACTER)
 	{
 		lifeTime -= 1.0;
-	}
+	}*/
 
 	if (OBJECT_TYPE == OBJECT_CHARACTER)
 	{
@@ -154,24 +159,60 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 		Position.y = Position.y + vY * elapsedTime * objSpeed;	//이동구현
 		//cout << Position.x << endl;
 		//Position.s = MAX_BULLET_SIZE;
-		if (Position.x > 250 || Position.x < -250 || Position.y > 250 || Position.y < -250)
-		{
-			/*float checkX = 1;
-			float checkY = 1;
+		//if (Position.x > 250 || Position.x < -250 || Position.y > 250 || Position.y < -250)
+		//{
+		//	/*float checkX = 1;
+		//	float checkY = 1;
 
-			if (rand() % 2 == 1)
-			{
-				checkX *= -1;
-			}if (rand() % 2 == 1)
-			{
-				checkY *= -1;
-			}
-			vX = checkX;
-			vY = checkY;*/
-			Position.s = 0.0f;
-			Position.x = 0.0f;
-			Position.y = 0.0f;
-			//cout << "장소 이탈" << endl;
+		//	if (rand() % 2 == 1)
+		//	{
+		//		checkX *= -1;
+		//	}if (rand() % 2 == 1)
+		//	{
+		//		checkY *= -1;
+		//	}
+		//	vX = checkX;
+		//	vY = checkY;*/
+		//	Position.s = 0.0f;
+		//	Position.x = 0.0f;
+		//	Position.y = 0.0f;
+		//	//cout << "장소 이탈" << endl;
+		//}
+		if (Position.x > 250) {
+			vX = -vX;
+			vY = (float)(rand() % 2);
+		}
+		if (Position.x < -250) {
+			vX = -vX;
+			vY = (float)(rand() % 2);
+		}
+		if (Position.y > 250) {
+			vY = -vY;
+			vX = (float)(rand() % 2);
+		}
+		if (Position.y < -250) {
+			vY = -vY;
+			vX = (float)(rand() % 2);
+		}
+	}
+	else if (OBJECT_TYPE == OBJECT_ARROW) {
+		Position.x = Position.x + vX * elapsedTime * objSpeed;	//이동구현
+		Position.y = Position.y + vY * elapsedTime * objSpeed;	//이동구현		
+		if (Position.x > 250) {
+			vX = -vX;
+			vY = (float)(rand() % 2);
+		}
+		if (Position.x < -250) {
+			vX = -vX;
+			vY = (float)(rand() % 2);
+		}
+		if (Position.y > 250) {
+			vY = -vY;
+			vX = (float)(rand() % 2);
+		}
+		if (Position.y < -250) {
+			vY = -vY;
+			vX = (float)(rand() % 2);
 		}
 	}
 }

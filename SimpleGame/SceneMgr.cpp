@@ -1,11 +1,6 @@
 #include "stdafx.h"
 #include "SceneMgr.h"
 
-//#define OBJECT_BUILDING
-//#define OBJECT_CHARACTER
-//#define OBJECT_BULLET
-//#define OBJECT_ARROW
-
 using namespace std;
 
 SceneMgr::SceneMgr()
@@ -16,7 +11,10 @@ SceneMgr::SceneMgr()
 	obj_ARROW = NULL;
 	g_Renderer = NULL;
 	bulletCount = 0;
-	emptyBullet = 0;
+	arrowCount = 0;
+	bulletTimeSet = 0;
+	arrowTimeSet = 0;
+	pngNum = g_Renderer->CreatePngTexture("./Resource/building_set.png");
 }
 
 SceneMgr::~SceneMgr()
@@ -63,34 +61,36 @@ void SceneMgr::ObjectCreate(int Object_Type)
 
 			/*Data temp2 = { 0.0f,0.0f,0.0f,0.0f };
 			obj_BULLET[i].setPosition(temp2);*/
-			Data RGB = { 0.0f,0.0f,255.0f,0.0f };
+			Data RGB = { 0.0f,0.0f,255.0f,1.0f };
 			obj_BULLET[i].setRGB(RGB);
 			obj_BULLET[i].fixedObjLife(10.0f);
 		}
 	}
-	else
+	else if (Object_Type == OBJECT_ARROW)
 	{
-		//obj_ARROW = new Object[NUM]();
-	}
-	//for (int i = 0; i < NUM; ++i)
-	//{
-	//	Data temp1 = { (float)((rand() % 500) - 200),(float)(200 - (rand() % 500)),0,SIZE };
-	//	Data temp2 = { 255,255, 255,1.0 }; //흰색통일 
-	//	float checkX = 1;
-	//	float checkY = 1;
+		obj_ARROW = new Object[MAX_ARROW_COUNT]();
+		for (int i = 0; i < MAX_ARROW_COUNT; ++i)	//총알 초기화
+		{
+			float checkX = 1;
+			float checkY = 1;
 
-	//	if (rand() % 2 == 1)
-	//	{
-	//		checkX *= -1;
-	//	}if (rand() % 2 == 1)
-	//	{
-	//		checkY *= -1;
-	//	}
-	//	Data temp3 = { checkX, checkY ,0.0f,0.0f };
-	//	obj[i].setPosition(temp1);
-	//	obj[i].setRGB(temp2);
-	//	obj[i].setDirection(temp3);
-	//}
+			if (rand() % 2 == 1)
+			{
+				checkX *= -1;
+			}if (rand() % 2 == 1)
+			{
+				checkY *= -1;
+			}
+			Data temp3 = { checkX,checkY,0.0f,0.0f };
+			obj_ARROW[i].setDirection(temp3);
+
+			/*Data temp2 = { 0.0f,0.0f,0.0f,0.0f };
+			obj_BULLET[i].setPosition(temp2);*/
+			Data RGB = { 0.0f,255.0f,255.0f,1.0f };
+			obj_ARROW[i].setRGB(RGB);
+			obj_ARROW[i].fixedObjLife(10.0f);
+		}
+	}
 }
 
 void SceneMgr::ObjectAllDelete(int Object_Type)
@@ -107,7 +107,7 @@ void SceneMgr::ObjectAllDelete(int Object_Type)
 	{
 		delete[] obj_BULLET;
 	}
-	else
+	else if (Object_Type == OBJECT_ARROW)
 	{
 		delete[] obj_ARROW;
 	}
@@ -168,15 +168,15 @@ void SceneMgr::ObjectCollition(int& MAX, float updateTime)
 	//	{
 	//		int Size = MAX_OBJECTS_SIZE / 2;
 
-	//		Data Rect1 = obj[i].getPosition();
+	//		Data charRect = obj[i].getPosition();
 	//		for (int j = 0; j < MAX_OBJECTS_COUNT; ++j)
 	//		{
 	//			if (i == j)
 	//			{
 	//				continue;
 	//			}
-	//			Data Rect2 = obj[j].getPosition();
-	//			if ((Rect1.x - Size) < (Rect2.x + Size) && (Rect1.x + Size) > (Rect2.x - Size) && (Rect1.y - Size) < (Rect2.y + Size) && (Rect1.y + Size) > (Rect2.y - Size))
+	//			Data buildRect = obj[j].getPosition();
+	//			if ((charRect.x - Size) < (buildRect.x + Size) && (charRect.x + Size) > (buildRect.x - Size) && (charRect.y - Size) < (buildRect.y + Size) && (charRect.y + Size) > (buildRect.y - Size))
 	//			{
 	//				obj[i].setRGB(Red);
 	//				obj[i].setObjLife((-1.0));
@@ -205,37 +205,48 @@ void SceneMgr::ObjectCollition(int& MAX, float updateTime)
 	int obj_Character_Size = MAX_OBJECTS_SIZE / 2;
 	int obj_Bulidong_Size = MAX_BUILDING_SIZE / 2;
 	int obj_Bullet_Size = MAX_BULLET_SIZE / 2;
+	int obj_Arrow_Size = MAX_ARROW_SIZE / 2;
 
 
 	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
 	{
-		if (obj[i].getPosition().s < 0.0f)	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
+		if (obj[i].getPosition().s < 0.0f || obj[i].getObjLifeTime() < 0.0)	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
 		{
 			continue;
 		}
 		obj[i].setRGB(White);
 
-		Data Rect1 = obj[i].getPosition();
+		Data charRect = obj[i].getPosition();
+		Data arrowRect = obj_ARROW[i].getPosition();
 		for (int j = 0; j < MAX_BUILDING_COUNT; ++j)
 		{
-			Data Rect2 = obj_BUILDING[j].getPosition();
+			Data buildRect = obj_BUILDING[j].getPosition();
 			//cout << "빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
 			/*if (i == j)
 			{
 				continue;
 			}*/
 
-			if (obj_BUILDING[j].getObjLife() < 0.0f)
+			if (obj_BUILDING[j].getObjLife() < 0.0f || obj_BUILDING[j].getPosition().s < 0.0)
 			{
 				continue;
 			}
-			if ((Rect1.x - obj_Character_Size) < (Rect2.x + obj_Bulidong_Size) && (Rect1.x + obj_Character_Size) > (Rect2.x - obj_Bulidong_Size) && (Rect1.y - obj_Character_Size) < (Rect2.y + obj_Bulidong_Size) && (Rect1.y + obj_Character_Size) > (Rect2.y - obj_Bulidong_Size))
+			if (((charRect.x - obj_Character_Size) < (buildRect.x + obj_Bulidong_Size) && (charRect.x + obj_Character_Size) > (buildRect.x - obj_Bulidong_Size) && (charRect.y - obj_Character_Size) < (buildRect.y + obj_Bulidong_Size) && (charRect.y + obj_Character_Size) > (buildRect.y - obj_Bulidong_Size)) )
 			{
 				cout << "빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
 				obj[i].setRGB(Red);
 				obj_BUILDING[j].setObjLife((-100.00f));
 				obj[i].setObjLife(-5.0f);
 			}
+			/*if ((arrowRect.x - obj_Arrow_Size) < (buildRect.x + obj_Bulidong_Size) && (arrowRect.x + obj_Arrow_Size) > (buildRect.x - obj_Bulidong_Size) && (arrowRect.y - obj_Arrow_Size) < (buildRect.y + obj_Bulidong_Size) && (arrowRect.y + obj_Arrow_Size) > (buildRect.y - obj_Bulidong_Size)) 
+			{
+				cout << "빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
+				obj_ARROW[i].setRGB(Red);
+				obj_BUILDING[j].setObjLife((-100.00f));
+				obj_ARROW[i].setObjLife(-5.0f);
+			}*/
+
+
 			if (obj[i].getObjLife() <= 0.0f)
 			{
 				Data temp2 = { 0.0,0.0,0.0,-1.0 };
@@ -243,6 +254,13 @@ void SceneMgr::ObjectCollition(int& MAX, float updateTime)
 				//obj[i].fixedObjLife(-1.0f);			//-1로 라이프를 설정하면 충돌체크, 재발사 등 동작 하지 않음.
 				MAX--;
 			}
+			//if (obj_ARROW[i].getObjLife() <= 0.0f)
+			//{
+			//	Data temp2 = { 0.0,0.0,0.0,-1.0 };
+			//	obj_ARROW[i].setPosition(temp2);			//사이즈가 -1 이니 False 상태라 봄
+			//										//obj[i].fixedObjLife(-1.0f);			//-1로 라이프를 설정하면 충돌체크, 재발사 등 동작 하지 않음.
+			//	
+			//}
 			if (obj_BUILDING[j].getObjLife() <= 0.0)//|| obj_BUILDING[i].getObjLifeTime() < 0.0f
 			{
 				Data temp = { 0.0,0.0,0.0,-1.0 };
@@ -259,12 +277,12 @@ void SceneMgr::ObjectCollition(int& MAX, float updateTime)
 		}
 		for (int q = 0; q < MAX_BULLET_COUNT; ++q)
 		{
-			Data Rect3 = obj_BULLET[q].getPosition();
+			Data bulletRect = obj_BULLET[q].getPosition();
 			if (obj_BULLET[q].getObjLife() < 0.0f)
 			{
 				continue;
 			}
-			if ((Rect1.x - obj_Character_Size) < (Rect3.x + obj_Bullet_Size) && (Rect1.x + obj_Character_Size) > (Rect3.x - obj_Bullet_Size) && (Rect1.y - obj_Character_Size) < (Rect3.y + obj_Bullet_Size) && (Rect1.y + obj_Character_Size) > (Rect3.y - obj_Bullet_Size))
+			if ((charRect.x - obj_Character_Size) < (bulletRect.x + obj_Bullet_Size) && (charRect.x + obj_Character_Size) > (bulletRect.x - obj_Bullet_Size) && (charRect.y - obj_Character_Size) < (bulletRect.y + obj_Bullet_Size) && (charRect.y + obj_Character_Size) > (bulletRect.y - obj_Bullet_Size))
 			{
 				//cout << "총알의 체력 : " << obj_BULLET[q].getObjLife() << endl;
 				obj[i].setRGB(Red);
@@ -272,7 +290,7 @@ void SceneMgr::ObjectCollition(int& MAX, float updateTime)
 			}
 			if (obj_BULLET[q].getObjLife() < 0.0)//|| obj_BUILDING[i].getObjLifeTime() < 0.0f
 			{
-				Data temp = { 0.0,0.0,0.0,MAX_BULLET_SIZE };
+				Data temp = { 0.0,0.0,0.0,-1 };
 				obj_BULLET[q].setPosition(temp);			//사이즈가 -1 이니 False 상태라 봄
 				obj_BULLET[q].fixedObjLife(10.0f);			//delete &obj_BUILDING[i];
 															//obj[i] = nullptr;
@@ -296,9 +314,16 @@ void SceneMgr::ObjectCollition(int& MAX, float updateTime)
 			}
 		}
 		obj[i].Update((float)updateTime, OBJECT_CHARACTER);
+		//obj_ARROW[i].Update((float)updateTime, OBJECT_ARROW);
 	}
 }
-void SceneMgr::ObjectDraw(int Object_Type, int& timeSet) {
+void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
+	//bulletTimeSet += timeSet;
+	//bulletTimeSet += 1;
+	//cout << timeSet << endl;
+
+	//arrowTimeSet += timeSet;
+	//arrowTimeSet += 1;
 	if (Object_Type == OBJECT_CHARACTER)
 	{
 		for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
@@ -319,8 +344,8 @@ void SceneMgr::ObjectDraw(int Object_Type, int& timeSet) {
 
 			Data pos = obj_BUILDING[i].getPosition();
 			Data rgb = obj_BUILDING[i].getRGB();
-			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s);
-
+			//g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s);
+			g_Renderer->DrawTexturedRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, pngNum);
 			
 		}
 	}
@@ -379,6 +404,43 @@ void SceneMgr::ObjectDraw(int Object_Type, int& timeSet) {
 			Data pos = obj_ARROW[i].getPosition();
 			Data rgb = obj_ARROW[i].getRGB();
 			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s);
+		}
+
+		for (int i = 0; i < MAX_ARROW_COUNT; ++i)
+		{
+			/*if (obj_BULLET[i].getPosition().s < MAX_BULLET_SIZE)
+			{
+			bulletCount = i;
+			}*/
+			Data pos = obj_ARROW[i].getPosition();
+			Data rgb = obj_ARROW[i].getRGB();
+			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s);
+
+			if (timeSet > 500)
+			{
+				float checkX = 1;
+				float checkY = 1;
+
+				if (rand() % 2 == 1)
+				{
+					checkX *= -1;
+				}if (rand() % 2 == 1)
+				{
+					checkY *= -1;
+				}
+
+				Data temp3 = { checkX,checkY,0.0f,0.0f };
+				obj_ARROW[arrowCount].setDirection(temp3);
+
+				Data temp2 = { 100.0f,0.0f,0.0f,MAX_ARROW_SIZE };
+				obj_ARROW[arrowCount].setPosition(temp2);
+				arrowCount++;
+				if (arrowCount > MAX_ARROW_COUNT)
+				{
+					arrowCount = 0;
+				}
+				timeSet = 0;
+			}
 		}
 	}
 }

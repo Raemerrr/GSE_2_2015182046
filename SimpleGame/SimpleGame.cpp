@@ -16,12 +16,16 @@ SceneMgr *SceneManager = new SceneMgr();
 bool g_LButtonDown = false; //마우스 클릭 확인
 DWORD g_prevTime = 0;	//이전 시간 확인 변수
 int CheckObjectCount = 0; //오브젝트 갯수 확인
-int BulleltSpawnTime = 0;
+float CharSpawnTime = 0;
+float BuildSpawnTime = 0;
+float BulleltSpawnTime = 0;
+float ArrowSpawnTime = 0;
 
 using namespace std;
 
 void RenderScene(void)
 {
+
 	DWORD currentTime = timeGetTime();
 	DWORD updateTime = currentTime - g_prevTime;
 	g_prevTime = currentTime;
@@ -31,15 +35,18 @@ void RenderScene(void)
 
 	// Renderer Test
 	//그리기함수
-	SceneManager->ObjectDraw(OBJECT_CHARACTER, BulleltSpawnTime);
-	SceneManager->ObjectDraw(OBJECT_BUILDING, BulleltSpawnTime);
-	//float BulleltSpawnTime = (float)updateTime;
-	BulleltSpawnTime += (int)updateTime;
+	SceneManager->ObjectDraw(OBJECT_CHARACTER, CharSpawnTime);
+	SceneManager->ObjectDraw(OBJECT_BUILDING, BuildSpawnTime);
 	
+	BulleltSpawnTime += (float)updateTime;
 	//cout << BulleltSpawnTime << endl;
 	SceneManager->ObjectDraw(OBJECT_BULLET, BulleltSpawnTime);
 	//cout << "x값 : "<< SceneManager->getObject(0, OBJECT_BULLET)->getPosition().x << " y값 : " << SceneManager->getObject(0, OBJECT_BULLET)->getPosition().y << " s값 : " << SceneManager->getObject(0, OBJECT_BULLET)->getPosition().s <<endl;
 	
+	ArrowSpawnTime += (float)updateTime;
+	//cout << ArrowSpawnTime << endl;
+	SceneManager->ObjectDraw(OBJECT_ARROW, ArrowSpawnTime);
+
 	//충돌 체크 및 라이프, 라이프 타임 관리 //업데이트
 	SceneManager->ObjectCollition(CheckObjectCount, (float)updateTime);
 
@@ -143,10 +150,14 @@ int main(int argc, char **argv)
 	}
 
 	SceneManager->RendererCreate();
-	SceneManager->ObjectCreate(OBJECT_CHARACTER); //캐릭터 객체생성
-	SceneManager->ObjectCreate(OBJECT_BUILDING); //건물 객체생성
-	SceneManager->ObjectCreate(OBJECT_BULLET); //총알 객체생성
-
+	//SceneManager->ObjectCreate(OBJECT_CHARACTER); //캐릭터 객체생성
+	//SceneManager->ObjectCreate(OBJECT_BUILDING); //건물 객체생성
+	//SceneManager->ObjectCreate(OBJECT_BULLET); //총알 객체생성
+	//SceneManager->ObjectCreate(OBJECT_ARROW); //캐릭총알 객체생성
+	for (int i = 1; i <= 4; ++i) // ARROW 추가되면 4까지
+	{
+		SceneManager->ObjectCreate(i);
+	}
 	glutDisplayFunc(RenderScene);
 	glutIdleFunc(Idle);
 	glutKeyboardFunc(KeyInput);
@@ -157,7 +168,7 @@ int main(int argc, char **argv)
 
 	glutMainLoop();
 
-	for (int i = 1; i <= 3; ++i) // ARROW 추가되면 4까지
+	for (int i = 1; i <= 4; ++i) // ARROW 추가되면 4까지
 	{
 		SceneManager->ObjectAllDelete(i);
 	}

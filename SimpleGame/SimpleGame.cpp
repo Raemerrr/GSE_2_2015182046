@@ -16,6 +16,7 @@ SceneMgr *SceneManager = new SceneMgr();
 bool g_LButtonDown = false; //마우스 클릭 확인
 DWORD g_prevTime = 0;	//이전 시간 확인 변수
 int CheckObjectCount = 0; //오브젝트 갯수 확인
+int CheckArrowCount = 0; //오브젝트 갯수 확인
 float CharSpawnTime = 0;
 float BuildSpawnTime = 0;
 float BulleltSpawnTime = 0;
@@ -46,6 +47,7 @@ void RenderScene(void)
 	ArrowSpawnTime += (float)updateTime;
 	//cout << ArrowSpawnTime << endl;
 	SceneManager->ObjectDraw(OBJECT_ARROW, ArrowSpawnTime);
+	//cout << "x값 : "<< SceneManager->getObject(0, OBJECT_ARROW)->getPosition().x << " y값 : " << SceneManager->getObject(0, OBJECT_ARROW)->getPosition().y << " s값 : " << SceneManager->getObject(0, OBJECT_ARROW)->getPosition().s <<endl;
 
 	//충돌 체크 및 라이프, 라이프 타임 관리 //업데이트
 	SceneManager->ObjectCollition(CheckObjectCount, (float)updateTime);
@@ -69,8 +71,9 @@ void MouseInput(int button, int state, int x, int y)
 	Data White = { 255,255, 255,1.0 };
 	Data Red = { 255,0, 0,1.0 }; //빨강통일 
 	int DrawObjCheck = 0; //그려져있는지 체크
+	//int DrawArrCheck = 0; //화살 그려져있는지 체크
 	DrawObjCheck = CheckObjectCount;
-
+	//DrawArrCheck = CheckArrowCount;
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
 		for (int j = 0; j < MAX_OBJECTS_SIZE; ++j)
@@ -79,7 +82,7 @@ void MouseInput(int button, int state, int x, int y)
 			{
 				DrawObjCheck = j;
 			}
-		else if (CheckObjectCount >= MAX_OBJECTS_COUNT)
+			else if (CheckObjectCount >= MAX_OBJECTS_COUNT)
 			{
 				return;
 			}
@@ -111,7 +114,13 @@ void MouseInput(int button, int state, int x, int y)
 				checkY *= -1;
 			}
 			Data temp2 = { checkX,checkY,0.0f,0.0f };
-			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setDirection(temp2);
+			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setDirection(temp2);
+			
+			Data arrowPos = { SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->getPosition().x,SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->getPosition().y, SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->getPosition().z, MAX_ARROW_SIZE };
+			SceneManager->getObject(DrawObjCheck, OBJECT_ARROW)->setPosition(arrowPos);
+			SceneManager->getObject(DrawObjCheck, OBJECT_ARROW)->setDirection(temp2);
+			SceneManager->getObject(DrawObjCheck, OBJECT_ARROW)->fixedObjLife(1.0f);
+			CheckObjectCount = DrawObjCheck;
 			CheckObjectCount++;
 		}
 		g_LButtonDown = false;

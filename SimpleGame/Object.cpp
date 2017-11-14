@@ -5,6 +5,7 @@ using namespace std;
 
 Object::Object()
 {
+	//srand((unsigned)time(NULL));  //한번만 설정할 것.
 	Position.x = 999.0;		//겹치지 않는 위치에서 시작하기 위함.(맵상에 존재 않하는 것 처럼)
 	Position.y = 999.0;		//겹치지 않는 위치에서 시작하기 위함.
 	Position.z = 999.0;		//겹치지 않는 위치에서 시작하기 위함.
@@ -121,7 +122,7 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 	}
 	else if (OBJECT_TYPE == OBJECT_ARROW)
 	{
-		objSpeed = 1.0f;
+		objSpeed = 5.0f;
 	}
 
 	elapsedTime = elapsedTime / 1000.f;
@@ -178,6 +179,34 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 		//	Position.y = 0.0f;
 		//	//cout << "장소 이탈" << endl;
 		//}
+
+		/*float checkX = 1;
+		float checkY = 1;
+
+		if (rand() % 2 == 1)
+		{
+			checkX *= -1;
+		}if (rand() % 2 == 1)
+		{
+			checkY *= -1;
+		}
+
+		if (Position.x > 250) {
+			vX = checkX;
+			vY = (float)(rand() % 2);
+		}
+		if (Position.x < -250) {
+			vX = checkX;
+			vY = (float)(rand() % 2);
+		}
+		if (Position.y > 250) {
+			vX = (float)(rand() % 2);
+			vY = checkY;
+		}
+		if (Position.y < -250) {
+			vX = (float)(rand() % 2);
+			vY = checkY;
+		}*/
 		if (Position.x > 250) {
 			vX = -vX;
 			vY = (float)(rand() % 2);

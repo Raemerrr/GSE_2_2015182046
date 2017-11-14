@@ -15,8 +15,6 @@ private:
 	Object* obj_ARROW;
 	int bulletCount;
 	int arrowCount;
-	float bulletTimeSet;
-	float arrowTimeSet;
 	GLuint pngNum;
 
 public:

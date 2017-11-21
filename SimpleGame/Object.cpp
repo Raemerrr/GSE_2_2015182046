@@ -6,16 +6,17 @@ using namespace std;
 Object::Object()
 {
 	//srand((unsigned)time(NULL));  //한번만 설정할 것.
-	Position.x = 999.0;		//겹치지 않는 위치에서 시작하기 위함.(맵상에 존재 않하는 것 처럼)
-	Position.y = 999.0;		//겹치지 않는 위치에서 시작하기 위함.
-	Position.z = 999.0;		//겹치지 않는 위치에서 시작하기 위함.
-	Position.s = 0.0;
+	Position.x = 999.0f;		//겹치지 않는 위치에서 시작하기 위함.(맵상에 존재 않하는 것 처럼)
+	Position.y = 999.0f;		//겹치지 않는 위치에서 시작하기 위함.
+	Position.z = 999.0f;		//겹치지 않는 위치에서 시작하기 위함.
+	Position.s = 0.0f;
 	Rgb.x = 0.0;
 	Rgb.y = 0.0;
 	Rgb.z = 0.0;
-	Rgb.s = 1.0;
+	Rgb.s = 0.0;
 	vX = 0.0; //X의 방향
 	vY = 0.0; //Y의 방향
+	teamNum = 0;
 
 	Direction.x = 0.0;
 	Direction.y = 0.0;
@@ -109,8 +110,21 @@ void Object::setObjLifeTime(float p)
 	lifeTime = p;
 }
 
+int Object::getTeamNum() 
+{
+	return teamNum;
+}
+
+void Object::setTeamNum(int a) 
+{
+	teamNum = a;
+}
+
 void Object::Update(float elapsedTime, int OBJECT_TYPE)
 {
+	int screenX = MAX_SCREEN_WIDTH / 2;
+	int screenY = MAX_SCEEN_HEIGHT / 2;
+
 	float objSpeed = 0.0f;
 	if (OBJECT_TYPE == OBJECT_CHARACTER)
 	{
@@ -138,19 +152,19 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 	{
 		Position.x = Position.x + vX * elapsedTime * objSpeed;  //이동구현
 		Position.y = Position.y + vY * elapsedTime * objSpeed;	//이동구현
-		if (Position.x > 250) {
+		if (Position.x > screenX) {
 			vX = -vX;
 			vY = (float)(rand() % 2);
 		}
-		if (Position.x < -250) {
+		if (Position.x < (-screenX)) {
 			vX = -vX;
 			vY = (float)(rand() % 2);
 		}
-		if (Position.y > 250) {
+		if (Position.y > screenY) {
 			vY = -vY;
 			vX = (float)(rand() % 2);
 		}
-		if (Position.y < -250) {
+		if (Position.y < (-screenY)) {
 			vY = -vY;
 			vX = (float)(rand() % 2);
 		}
@@ -207,19 +221,19 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 			vX = (float)(rand() % 2);
 			vY = checkY;
 		}*/
-		if (Position.x > 250) {
+		if (Position.x > screenX) {
 			vX = -vX;
 			vY = (float)(rand() % 2);
 		}
-		if (Position.x < -250) {
+		if (Position.x < (-screenX)) {
 			vX = -vX;
 			vY = (float)(rand() % 2);
 		}
-		if (Position.y > 250) {
+		if (Position.y > screenY) {
 			vY = -vY;
 			vX = (float)(rand() % 2);
 		}
-		if (Position.y < -250) {
+		if (Position.y < (-screenY)) {
 			vY = -vY;
 			vX = (float)(rand() % 2);
 		}
@@ -227,19 +241,19 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 	else if (OBJECT_TYPE == OBJECT_ARROW) {
 		Position.x = Position.x + vX * elapsedTime * objSpeed;	//이동구현
 		Position.y = Position.y + vY * elapsedTime * objSpeed;	//이동구현		
-		if (Position.x > 250) {
+		if (Position.x > screenX) {
 			vX = -vX;
 			vY = (float)(rand() % 2);
 		}
-		if (Position.x < -250) {
+		if (Position.x < (-screenX)) {
 			vX = -vX;
 			vY = (float)(rand() % 2);
 		}
-		if (Position.y > 250) {
+		if (Position.y > screenY) {
 			vY = -vY;
 			vX = (float)(rand() % 2);
 		}
-		if (Position.y < -250) {
+		if (Position.y < (-screenY)) {
 			vY = -vY;
 			vX = (float)(rand() % 2);
 		}

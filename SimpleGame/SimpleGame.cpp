@@ -15,12 +15,13 @@ SceneMgr *SceneManager = new SceneMgr();
 
 bool g_LButtonDown = false; //마우스 클릭 확인
 DWORD g_prevTime = 0;	//이전 시간 확인 변수
-int CheckObjectCount = 0; //오브젝트 갯수 확인
-int CheckArrowCount = 0; //오브젝트 갯수 확인
+
+int CheckObjectCount = (MAX_OBJECTS_COUNT/2); //오브젝트 갯수 확인
 float CharSpawnTime = 0;
 float BuildSpawnTime = 0;
 float BulleltSpawnTime = 0;
 float ArrowSpawnTime = 0;
+int DrawObjCheck = 0; //그려져있는지 체크
 
 using namespace std;
 
@@ -37,21 +38,21 @@ void RenderScene(void)
 	// Renderer Test
 	//그리기함수
 	SceneManager->ObjectDraw(OBJECT_CHARACTER, CharSpawnTime);
+
 	SceneManager->ObjectDraw(OBJECT_BUILDING, BuildSpawnTime);
 	
 	BulleltSpawnTime += (float)updateTime;
 	//cout << BulleltSpawnTime << endl;
-	SceneManager->ObjectDraw(OBJECT_BULLET, BulleltSpawnTime);
+	SceneManager->ObjectDraw(OBJECT_BULLET, BulleltSpawnTime);	//현재 3번째 인자값 CheckObjectCount는 ArrowDraw 시만 이용됨
 	//cout << "x값 : "<< SceneManager->getObject(0, OBJECT_BULLET)->getPosition().x << " y값 : " << SceneManager->getObject(0, OBJECT_BULLET)->getPosition().y << " s값 : " << SceneManager->getObject(0, OBJECT_BULLET)->getPosition().s <<endl;
 	
 	ArrowSpawnTime += (float)updateTime;
 	//cout << ArrowSpawnTime << endl;
-	SceneManager->ObjectDraw(OBJECT_ARROW, ArrowSpawnTime);
+	SceneManager->ObjectDraw(OBJECT_ARROW, ArrowSpawnTime);	//현재 3번째 인자값 CheckObjectCount는 ArrowDraw 시만 이용됨
 	//cout << "x값 : "<< SceneManager->getObject(0, OBJECT_ARROW)->getPosition().x << " y값 : " << SceneManager->getObject(0, OBJECT_ARROW)->getPosition().y << " s값 : " << SceneManager->getObject(0, OBJECT_ARROW)->getPosition().s <<endl;
 
 	//충돌 체크 및 라이프, 라이프 타임 관리 //업데이트
 	SceneManager->ObjectCollition(CheckObjectCount, (float)updateTime);
-
 	glutSwapBuffers();
 }
 
@@ -66,29 +67,40 @@ void Idle(void)
 
 void MouseInput(int button, int state, int x, int y)
 {
-	x = x - 250;
-	y = 250 - y;
-	Data White = { 255,255, 255,1.0 };
+	x = (x - (MAX_SCREEN_WIDTH/2));
+	y = ((MAX_SCEEN_HEIGHT / 2) - y);
+	Data TEAM2CharColor = { 0,0, 255,255 };
 	Data Red = { 255,0, 0,1.0 }; //빨강통일 
-	int DrawObjCheck = 0; //그려져있는지 체크
+	//DrawObjCheck = 0; //그려져있는지 체크
 	//int DrawArrCheck = 0; //화살 그려져있는지 체크
-	DrawObjCheck = CheckObjectCount;
+	//DrawObjCheck = CheckObjectCount;
 	//DrawArrCheck = CheckArrowCount;
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-		for (int j = 0; j < MAX_OBJECTS_SIZE; ++j)
+		if (!g_LButtonDown)
 		{
-			if (SceneManager->getObject(j, OBJECT_CHARACTER)->getPosition().s < 0.0f)
-			{
-				DrawObjCheck = j;
-			}
-			else if (CheckObjectCount >= MAX_OBJECTS_COUNT)
+			//cout << "DrawObjCheck : " << DrawObjCheck << " CheckObjectCount : " << CheckObjectCount << endl;
+			if (CheckObjectCount > MAX_OBJECTS_COUNT)
 			{
 				return;
 			}
+			DrawObjCheck = 0; //그려져있는지 체크
+			for (int j = (MAX_OBJECTS_COUNT/2); j < MAX_OBJECTS_COUNT; ++j)
+			{
+				if (SceneManager->getObject(j, OBJECT_CHARACTER)->getPosition().s < 0.0f)
+				{
+					//cout << "SceneManager->getObject(" << j << ", OBJECT_CHARACTER)->getPosition().s < 0.0f 실행" << endl;
+					DrawObjCheck = CheckObjectCount;
+					//cout << CheckObjectCount << endl;
+					CheckObjectCount = j;
+					break;
+				}
+
+
+			}
+			//std::cout << "클릭되었습니다." << endl;
+			//cout << "x : " << x << " y : " << y << " CheckObjCount : " << CheckObjectCount << " DrawObjCheck :" << DrawObjCheck << endl;
 		}
-		std::cout << "클릭되었습니다." << endl;
-		std::cout << "x : " << x << " y : " << y << " CheckObjCount : " << CheckObjectCount << endl;
 		g_LButtonDown = true;
 	}
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
@@ -97,12 +109,13 @@ void MouseInput(int button, int state, int x, int y)
 		{
 			//clicked
 			//범위 체크
-			std::cout << "클릭 해제되었습니다." << endl;
+			//cout << "클릭 해제되었습니다." << endl;
 			Data temp1 = { (float)x,(float)y,0,MAX_OBJECTS_SIZE };
-			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setPosition(temp1);
+			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setPosition(temp1);
 			/*SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setObjLifeTime(100000.0f);*/
-			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->fixedObjLife(1.0f);
-			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setRGB(White);
+			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->fixedObjLife(1.0f);
+			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setRGB(TEAM2CharColor);
+			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setTeamNum(2);
 			float checkX = 1;
 			float checkY = 1;
 
@@ -114,14 +127,20 @@ void MouseInput(int button, int state, int x, int y)
 				checkY *= -1;
 			}
 			Data temp2 = { checkX,checkY,0.0f,0.0f };
-			SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setDirection(temp2);
-			
-			Data arrowPos = { SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->getPosition().x,SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->getPosition().y, SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->getPosition().z, MAX_ARROW_SIZE };
-			SceneManager->getObject(DrawObjCheck, OBJECT_ARROW)->setPosition(arrowPos);
-			SceneManager->getObject(DrawObjCheck, OBJECT_ARROW)->setDirection(temp2);
-			SceneManager->getObject(DrawObjCheck, OBJECT_ARROW)->fixedObjLife(1.0f);
+			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setDirection(temp2);
+
+			/*Data arrowPos = { SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->getPosition().x,SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->getPosition().y, SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->getPosition().z, MAX_ARROW_SIZE };
+			SceneManager->getObject(CheckObjectCount, OBJECT_ARROW)->setPosition(arrowPos);
+			SceneManager->getObject(CheckObjectCount, OBJECT_ARROW)->setDirection(temp2);
+			SceneManager->getObject(CheckObjectCount, OBJECT_ARROW)->fixedObjLife(1.0f);*/
+			if (DrawObjCheck != 0) 
+			{
 			CheckObjectCount = DrawObjCheck;
-			CheckObjectCount++;
+			}
+			if (CheckObjectCount < (MAX_OBJECTS_COUNT-1) && DrawObjCheck == 0)
+			{
+				CheckObjectCount++;
+			}
 		}
 		g_LButtonDown = false;
 	}
@@ -145,7 +164,7 @@ int main(int argc, char **argv)
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(0, 0);
-	glutInitWindowSize(500, 500);
+	glutInitWindowSize(MAX_SCREEN_WIDTH, MAX_SCEEN_HEIGHT);			//화면 크기 처리
 	glutCreateWindow("Game Software Engineering KPU");
 
 	glewInit();

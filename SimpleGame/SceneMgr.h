@@ -15,7 +15,8 @@ private:
 	Object* obj_ARROW;
 	int bulletCount;
 	int arrowCount;
-	GLuint pngNum;
+	GLuint team1BulidingImg;
+	GLuint team2BulidingImg;
 
 public:
 	SceneMgr();

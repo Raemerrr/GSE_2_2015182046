@@ -17,6 +17,8 @@ private:
 	float vY;
 	float objLife;
 	float lifeTime;
+	int teamNum;
+	
 public:
 	Object();
 	~Object();
@@ -33,5 +35,7 @@ public:
 	void setObjLifeTime(float a);
 	void fixedObjLife(float p);
 	void Update(float elapsedTime, int OBJECT_TYPE);
+	int getTeamNum();
+	void setTeamNum(int a);
 
 };

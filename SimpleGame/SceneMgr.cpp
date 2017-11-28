@@ -36,13 +36,13 @@ void SceneMgr::ObjectCreate(int Object_Type)
 			obj[i].setPosition(TEAM1CharPos);
 			obj[i].setTeamNum(1);
 			//obj[i].setObjLifeTime(100000.f);
-			obj[i].fixedObjLife(-1.f);
+			obj[i].fixedObjLife(-1.f);		//처음에 맵에 그려주지 않기위해서 -1.f죽음 처리함.
 			obj[i].setRGB(TEAM1CharColor);
 		}
 		for (int i = (MAX_OBJECTS_COUNT / 2); i < MAX_OBJECTS_COUNT; ++i)
 		{
 			Data TEAM2CharColor = { 0.f,0.f, 255,255 };
-			Data TEAM2CharPos = { MAX_SCREEN_WIDTH * 10,MAX_SCEEN_HEIGHT / 2,0.0f,MAX_OBJECTS_SIZE };
+			Data TEAM2CharPos = { (MAX_SCREEN_WIDTH * 10),(MAX_SCEEN_HEIGHT / 2),0.f,-1.f };
 			obj[i].setPosition(TEAM2CharPos);
 			obj[i].setTeamNum(2);
 			obj[i].fixedObjLife(MAX_OBJECTS_LIFE);
@@ -80,9 +80,9 @@ void SceneMgr::ObjectCreate(int Object_Type)
 		obj_BULLET = new Object[MAX_BULLET_COUNT]();
 		for (int i = 0; i < MAX_BULLET_COUNT; ++i)	//총알 초기화
 		{
-			Data temp = { (MAX_SCREEN_WIDTH * 10),MAX_SCEEN_HEIGHT,0.f,MAX_BULLET_SIZE };
+			Data temp = { (MAX_SCREEN_WIDTH * 10),MAX_SCEEN_HEIGHT,0.f,-1.f };
 			obj_BULLET[i].setPosition(temp);
-			obj_BULLET[i].fixedObjLife(10.0f);
+			obj_BULLET[i].fixedObjLife(MAX_BULLET_LIFE);
 		}
 	}
 	else if (Object_Type == OBJECT_ARROW)
@@ -90,9 +90,9 @@ void SceneMgr::ObjectCreate(int Object_Type)
 		obj_ARROW = new Object[MAX_ARROW_COUNT](); // 캐릭터 수 만큼 할당
 		for (int i = 0; i < MAX_ARROW_COUNT; ++i)	//총알 초기화
 		{
-			Data temp = { MAX_SCREEN_WIDTH,(MAX_SCEEN_HEIGHT * 10),0.f,MAX_ARROW_SIZE };
+			Data temp = { MAX_SCREEN_WIDTH,(MAX_SCEEN_HEIGHT * 10),0.f,-1.f };
 			obj_ARROW[i].setPosition(temp);
-			obj_ARROW[i].fixedObjLife(4.0f);
+			obj_ARROW[i].fixedObjLife(MAX_ARROW_LIFE);
 		}
 	}
 }
@@ -154,16 +154,18 @@ void SceneMgr::RendererCreate() {
 void SceneMgr::RendererDelete() {
 	delete g_Renderer;
 }
-void SceneMgr::Update(float updateTime) 
+void SceneMgr::Update(float updateTime)
 {
 	Data DeathPoint = { 999.f,999.f,999.f,-1.f };
+	Data DeathDirec = { 0.f,0.f,0.f,0.f };
 
 	for (int t = 0; t < MAX_OBJECTS_COUNT; ++t)
 	{
 		if (obj[t].getObjLife() <= 0.0)
 		{
 			obj[t].setPosition(DeathPoint);			//사이즈가 -1 이니 False 상태라 봄
-			obj[t].fixedObjLife(-1.0f);				//-1로 라이프를 설정하면 충돌체크, 재발사 등 동작 하지 않음.
+			obj[t].setDirection(DeathDirec);
+			obj[t].fixedObjLife(-1.f);				//-1로 라이프를 설정하면 충돌체크, 재발사 등 동작 하지 않음.
 		}
 		else
 		{
@@ -172,18 +174,20 @@ void SceneMgr::Update(float updateTime)
 	}
 	for (int j = 0; j < MAX_BUILDING_COUNT; ++j)
 	{
-		if (obj_BUILDING[j].getObjLife() <= 0.0)//|| obj_BUILDING[i].getObjLifeTime() < 0.0f
+		if (obj_BUILDING[j].getObjLife() <= 0.f)//|| obj_BUILDING[i].getObjLifeTime() <= 0.f
 		{
 			obj_BUILDING[j].setPosition(DeathPoint); //사이즈가 -1 이니 False 상태라 봄
-			obj_BUILDING[j].fixedObjLife(-1.0);
+			obj_BUILDING[j].fixedObjLife(-1.f);
 		}
 	}
 
 	for (int q = 0; q < MAX_BULLET_COUNT; ++q)
 	{
-		if (obj_BULLET[q].getObjLife() <= 0.0)//|| obj_BUILDING[i].getObjLifeTime() < 0.0f
+		if (obj_BULLET[q].getObjLife() <= 0.f)//|| obj_BUILDING[i].getObjLifeTime() <= 0.f
 		{
 			obj_BULLET[q].setPosition(DeathPoint);
+			obj_BULLET[q].setDirection(DeathDirec);
+			obj_BULLET[q].fixedObjLife((-1.f));
 		}
 		else
 		{
@@ -192,9 +196,11 @@ void SceneMgr::Update(float updateTime)
 	}
 	for (int q = 0; q < MAX_ARROW_COUNT; ++q)
 	{
-		if (obj_ARROW[q].getObjLife() <= 0.0)//|| obj_BUILDING[i].getObjLifeTime() < 0.0f
+		if (obj_ARROW[q].getObjLife() <= 0.f)//|| obj_BUILDING[i].getObjLifeTime() <= 0.f
 		{
 			obj_ARROW[q].setPosition(DeathPoint);
+			obj_ARROW[q].setDirection(DeathDirec);
+			obj_ARROW[q].fixedObjLife((-1.f));
 		}
 		else
 		{
@@ -216,7 +222,7 @@ void SceneMgr::ObjectCollition1()
 
 	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
 	{
-		if (obj[i].getPosition().s < 0.0f || obj[i].getObjLifeTime() < 0.0)	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
+		if (obj[i].getObjLife() <= 0.f || obj[i].getObjLifeTime() <= 0.f)	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
 		{
 			continue;
 		}
@@ -225,7 +231,7 @@ void SceneMgr::ObjectCollition1()
 		//캐릭터 vs 빌딩
 		for (int j = 0; j < MAX_BUILDING_COUNT; ++j)
 		{
-			if (obj_BUILDING[j].getPosition().s < 0.0f || obj_BUILDING[j].getTeamNum() == obj[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
+			if (obj_BUILDING[j].getObjLife() <= 0.f || obj_BUILDING[j].getTeamNum() == obj[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
 			{
 				continue;
 			}
@@ -233,23 +239,23 @@ void SceneMgr::ObjectCollition1()
 			if (((charRect.x - obj_Character_Size) < (buildRect.x + obj_Building_Size) && (charRect.x + obj_Character_Size) > (buildRect.x - obj_Building_Size) && (charRect.y - obj_Character_Size) < (buildRect.y + obj_Building_Size) && (charRect.y + obj_Character_Size) > (buildRect.y - obj_Building_Size)))
 			{
 				//cout << j << " 빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
-				obj_BUILDING[j].setObjLife((-50.f));
-				obj[i].setObjLife((-50.f));
+				obj_BUILDING[j].setObjLife((-obj[i].getObjLife()));
+				obj[i].setObjLife((-obj[i].getObjLife()));
 			}
 		}
 
 		//캐릭터 vs 빌딩미사일
 		for (int q = 0; q < MAX_BULLET_COUNT; ++q)
 		{
-			if (obj_BULLET[q].getPosition().s < 0.0f || obj_BULLET[q].getTeamNum() == obj[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
+			if (obj_BULLET[q].getObjLife() <= 0.f || obj_BULLET[q].getTeamNum() == obj[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
 			{
 				continue;
 			}
 			Data bulletRect = obj_BULLET[q].getPosition();
 			if ((charRect.x - obj_Character_Size) < (bulletRect.x + obj_Bullet_Size) && (charRect.x + obj_Character_Size) > (bulletRect.x - obj_Bullet_Size) && (charRect.y - obj_Character_Size) < (bulletRect.y + obj_Bullet_Size) && (charRect.y + obj_Character_Size) > (bulletRect.y - obj_Bullet_Size))
 			{
-				obj[i].setObjLife((-50.f));
-				obj_BULLET[q].setObjLife((-10.f));
+				obj[i].setObjLife((-obj_BULLET[q].getObjLife()));
+				obj_BULLET[q].setObjLife((-obj_BULLET[q].getObjLife()));
 			}
 		}
 
@@ -257,7 +263,7 @@ void SceneMgr::ObjectCollition1()
 		for (int z = 0; z < MAX_ARROW_COUNT; ++z)
 		{
 			Data arrowRect2 = obj_ARROW[z].getPosition();
-			if (obj_ARROW[z].getPosition().s < 0.0f || obj_ARROW[z].getTeamNum() == obj[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
+			if (obj_ARROW[z].getObjLife() <= 0.f || obj_ARROW[z].getTeamNum() == obj[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
 			{
 				continue;
 			}
@@ -276,15 +282,13 @@ void SceneMgr::ObjectCollition1()
 
 void SceneMgr::ObjectCollition2()
 {
-	Data DeathPoint = { 999.f,999.f,999.f,-1.f };
-	Data DeathDirec = { 0.f,0.f,0.f,0.f };
 	int obj_Building_Size = MAX_BUILDING_SIZE / 2;
 	int obj_Bullet_Size = MAX_BULLET_SIZE / 2;
 	int obj_Arrow_Size = MAX_ARROW_SIZE / 2;
 
 	for (int i = 0; i < MAX_BUILDING_COUNT; ++i)
 	{
-		if (obj_BUILDING[i].getPosition().s < 0.0f)// || obj_BUILDING[i].getObjLifeTime() < 0.0)	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
+		if (obj_BUILDING[i].getObjLife() <= 0.f)// || obj_BUILDING[i].getObjLifeTime() <= 0.f)	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
 		{
 			continue;
 		}
@@ -292,7 +296,7 @@ void SceneMgr::ObjectCollition2()
 
 		for (int q = 0; q < MAX_BULLET_COUNT; ++q)
 		{
-			if (obj_BULLET[q].getPosition().s < 0.0f || obj_BULLET[q].getTeamNum() == obj_BUILDING[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
+			if (obj_BULLET[q].getObjLife() <= 0.f || obj_BULLET[q].getTeamNum() == obj_BUILDING[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
 			{
 				continue;
 			}
@@ -307,14 +311,12 @@ void SceneMgr::ObjectCollition2()
 		for (int z = 0; z < MAX_ARROW_COUNT; ++z)
 		{
 			Data arrowRect2 = obj_ARROW[z].getPosition();
-			if (obj_ARROW[z].getPosition().s < 0.0f || obj_ARROW[z].getTeamNum() == obj_BUILDING[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
+			if (obj_ARROW[z].getObjLife() <= 0.f || obj_ARROW[z].getTeamNum() == obj_BUILDING[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
 			{
 				continue;
 			}
 			if (((buildRect.x - obj_Building_Size) < (arrowRect2.x + obj_Arrow_Size) && (buildRect.x + obj_Building_Size) > (arrowRect2.x - obj_Arrow_Size) && (buildRect.y - obj_Building_Size) < (arrowRect2.y + obj_Arrow_Size) && (buildRect.y + obj_Building_Size) > (arrowRect2.y - obj_Arrow_Size)))
 			{
-				obj_ARROW[z].setPosition(DeathPoint);
-				obj_ARROW[z].setDirection(DeathDirec);
 				obj_BUILDING[i].setObjLife(-50.f);
 				obj_ARROW[z].fixedObjLife(-1.f);
 			}
@@ -335,20 +337,22 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			float CharHealth = obj[i].getObjLife() / MAX_OBJECTS_LIFE;
 			for (int j = 0; j < (MAX_OBJECTS_COUNT / 2); ++j)
 			{
-				if (obj[j].getObjLife() < 0.0f)
+				if (obj[j].getObjLife() <= 0.f)
 				{
-					//cout << "SceneManager->getObject(" << j << ", OBJECT_CHARACTER)->getPosition().s < 0.0f 실행" << endl;
 					DrawObjCheck = AICharCount;
-					//cout << CheckObjectCount << endl;
 					AICharCount = j;
 					break;
 				}
 			}
 			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, (float)LEVEL_SKY);
-			g_Renderer->DrawSolidRectGauge(pos.x, pos.y + 10, pos.z, MAX_OBJECTS_SIZE * 3, 5, 1.f, 0.f, 0.f, 1.f, CharHealth, (float)LEVEL_GOD);
+			g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_OBJECTS_SIZE *0.8), pos.z, (float)MAX_OBJECTS_SIZE, 5, 1.f, 0.f, 0.f, 1.f, CharHealth, (float)LEVEL_GOD);
 
-			if (timeSet > 3000)
+			if (timeSet > 1000)
 			{
+				if (obj[AICharCount].getPosition().s == MAX_OBJECTS_SIZE)
+				{
+					continue;
+				}
 				Data TEAM1CharPos = { (float)(-250 + (rand() % MAX_SCREEN_WIDTH)),(float)(rand() % (MAX_SCEEN_HEIGHT / 2)),0.0f,(float)MAX_OBJECTS_SIZE };
 				obj[AICharCount].setPosition(TEAM1CharPos);
 				float checkX = 1;
@@ -368,7 +372,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 				{
 					AICharCount = DrawObjCheck;
 				}
-				if (AICharCount < (MAX_OBJECTS_COUNT - 1) && DrawObjCheck == 0)
+				if (AICharCount < ((MAX_OBJECTS_COUNT / 2) - 1) && DrawObjCheck == 0)
 				{
 					AICharCount++;
 				}
@@ -381,7 +385,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			Data pos = obj[i].getPosition();
 			Data rgb = obj[i].getRGB();
 			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, 0);
-			g_Renderer->DrawSolidRectGauge(pos.x, pos.y + 10, pos.z, MAX_OBJECTS_SIZE * 3, 5, 0.f, 0.f, 1.f, 1.f, CharHealth, (float)LEVEL_GOD);
+			g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_OBJECTS_SIZE*0.8), pos.z, (float)MAX_OBJECTS_SIZE, 5, 0.f, 0.f, 1.f, 1.f, CharHealth, (float)LEVEL_GOD);
 		}
 	}
 	else if (Object_Type == OBJECT_BUILDING)
@@ -399,12 +403,12 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			if (i < 3)
 			{
 				g_Renderer->DrawTexturedRect(pos.x, pos.y, pos.z, pos.s, 1.f, 1.f, 1.f, 1.f, team1BulidingImg, LEVEL_GOD);
-				g_Renderer->DrawSolidRectGauge(pos.x, pos.y + 60, pos.z, 100, 5, 1.f, 0.f, 0.f, 1.f, BuildHealth, LEVEL_GOD);
+				g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_BUILDING_SIZE*0.6), pos.z, (float)(MAX_BUILDING_SIZE*0.6), 5.f, 1.f, 0.f, 0.f, 1.f, BuildHealth, LEVEL_GOD);
 			}
 			else
 			{
 				g_Renderer->DrawTexturedRect(pos.x, pos.y, pos.z, pos.s, 1.f, 1.f, 1.f, 1.f, team2BulidingImg, LEVEL_GOD);
-				g_Renderer->DrawSolidRectGauge(pos.x, pos.y + 60, pos.z, 100, 5, 0.f, 0.f, 1.f, 1.f, BuildHealth, LEVEL_GOD);
+				g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_BUILDING_SIZE*0.6), pos.z, (float)(MAX_BUILDING_SIZE*0.6), 5.f, 0.f, 0.f, 1.f, 1.f, BuildHealth, LEVEL_GOD);
 			}
 		}
 
@@ -413,22 +417,29 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 	{
 		for (int i = 0; i < MAX_BULLET_COUNT; ++i)
 		{
-			int DrawObjCheck = 0;
+			//int DrawBulCheck = 0;
 			Data pos = obj_BULLET[i].getPosition();
 			Data rgb = obj_BULLET[i].getRGB();
-
+			/*for (int j = 0; j < MAX_BULLET_COUNT; ++j)
+			{
+				if (obj_BULLET[j].getObjLife() <= 0.0f)
+				{
+					DrawBulCheck = bulletCount;
+					bulletCount = j;
+					break;
+				}
+			}*/
 			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, (float)LEVEL_GROUND);
 
-			if (timeSet > 3000)
+			if (timeSet > 1000)
 			{
 				for (int t = 0; t < MAX_BUILDING_COUNT; ++t)
 				{
-					Data tempCharPos = obj_BUILDING[t].getPosition();
-					if (tempCharPos.s < 0.0f)
+					if (obj_BUILDING[t].getObjLife() <= 0.f || obj_BULLET[bulletCount].getPosition().s == MAX_BULLET_SIZE)
 					{
 						continue;
 					}
-					Data tempPos = { tempCharPos.x,tempCharPos.y,tempCharPos.z,MAX_BULLET_SIZE };
+					Data tempPos = { obj_BUILDING[t].getPosition().x,obj_BUILDING[t].getPosition().y,obj_BUILDING[t].getPosition().z,MAX_BULLET_SIZE };
 					obj_BULLET[bulletCount].setPosition(tempPos);
 					float checkX = 1;
 					float checkY = 1;
@@ -440,8 +451,9 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					{
 						checkY *= -1;
 					}
-					Data tempDirec = { checkX ,checkY,0.0f,0.0f };
+					Data tempDirec = { checkX ,checkY,0.f,0.f };
 					obj_BULLET[bulletCount].setDirection(tempDirec);
+					obj_BULLET[bulletCount].fixedObjLife(MAX_BULLET_LIFE);
 					if (t < (MAX_BUILDING_COUNT / 2))
 					{
 						Data Team1BulletColor = { 0.5f,0.2f,0.7f,1.f };
@@ -459,8 +471,10 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					{
 						for (int u = 0; u < MAX_BULLET_COUNT; ++u)
 						{
-							if (obj_BULLET[u].getPosition().s < 0.0) {
+							if (obj_BULLET[u].getObjLife() <= 0.0) {
 								bulletCount = u;
+								//cout << u << "번째 BULLET재생성" << endl;
+								break;
 							}
 						}
 					}
@@ -478,11 +492,11 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			Data rgb = obj_ARROW[i].getRGB();
 			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, (float)LEVEL_GROUND);
 
-			if (timeSet > 3000)
+			if (timeSet > 1000)
 			{
 				for (int t = 0; t < MAX_OBJECTS_COUNT; ++t)
 				{
-					if (obj[t].getObjLife() < 0.0f)
+					if (obj[t].getObjLife() <= 0.f)
 					{
 						continue;
 					}
@@ -500,6 +514,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					}
 					Data tempDirec = { checkX ,checkY,0.0f,0.0f };
 					obj_ARROW[arrowCount].setDirection(tempDirec);
+					obj_ARROW[arrowCount].fixedObjLife(MAX_ARROW_LIFE);
 					if (t < (MAX_OBJECTS_COUNT / 2))
 					{
 						Data Team1ArrowColor = { 255.f,0.f,0.f,255.f };
@@ -519,7 +534,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					{
 						for (int u = 0; u < MAX_ARROW_COUNT; ++u)
 						{
-							if (obj_ARROW[u].getPosition().s < 0.0) {
+							if (obj_ARROW[u].getObjLife() <= 0.0) {
 								//cout << u << "번째 ARROW객체 재생성" << endl;
 								arrowCount = u;
 							}

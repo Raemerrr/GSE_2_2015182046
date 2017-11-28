@@ -76,7 +76,7 @@ void MouseInput(int button, int state, int x, int y)
 
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-		if (!g_LButtonDown && CharSpawnTime > 3000)
+		if (!g_LButtonDown)
 		{
 			//cout << "DrawObjCheck : " << DrawObjCheck << " CheckObjectCount : " << CheckObjectCount << endl;
 			if (CheckObjectCount > MAX_OBJECTS_COUNT)
@@ -103,28 +103,31 @@ void MouseInput(int button, int state, int x, int y)
 	}
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
 	{
-		if (g_LButtonDown)
+		if (g_LButtonDown && CharSpawnTime > 2000)
 		{
 			//clicked
 			//범위 체크
 			//cout << "클릭 해제되었습니다." << endl;
 			Data temp1 = { (float)x,(float)y,0,MAX_OBJECTS_SIZE };
-			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setPosition(temp1);
-			/*SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setObjLifeTime(100000.0f);*/
-			float checkX = 1;
-			float checkY = 1;
 
-			if (rand() % 2 == 1)
+			if (SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->getPosition().s != MAX_OBJECTS_SIZE)
 			{
-				checkX *= -1;
-			}if (rand() % 2 == 1)
-			{
-				checkY *= -1;
+				SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setPosition(temp1);
+				/*SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setObjLifeTime(100000.0f);*/
+				float checkX = 1;
+				float checkY = 1;
+
+				if (rand() % 2 == 1)
+				{
+					checkX *= -1;
+				}if (rand() % 2 == 1)
+				{
+					checkY *= -1;
+				}
+				Data temp2 = { checkX,checkY,0.0f,0.0f };
+				SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setDirection(temp2);
+				SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setObjLife(100.f);
 			}
-			Data temp2 = { checkX,checkY,0.0f,0.0f };
-			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setDirection(temp2);
-			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setObjLife(100.f);
-
 			if (DrawObjCheck != 0)
 			{
 				CheckObjectCount = DrawObjCheck;

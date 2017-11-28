@@ -110,15 +110,15 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 	float objSpeed = 0.0f;
 	if (OBJECT_TYPE == OBJECT_CHARACTER)
 	{
-		objSpeed = 25.f;
+		objSpeed = 300.f;
 	}
 	else if (OBJECT_TYPE == OBJECT_BULLET)
 	{
-		objSpeed = 20.f;
+		objSpeed = 600.f;
 	}
 	else if (OBJECT_TYPE == OBJECT_ARROW)
 	{
-		objSpeed = 30.f;
+		objSpeed = 100.f;
 	}
 
 	elapsedTime = elapsedTime / 1000.f;

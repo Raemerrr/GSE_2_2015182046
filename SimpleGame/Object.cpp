@@ -18,12 +18,12 @@ Object::Object()
 	vY = 0.0; //Y의 방향
 	teamNum = 0;
 
-	Direction.x = 0.0;
-	Direction.y = 0.0;
-	Direction.z = 0.0;//삭제 유무
-	Direction.s = 0.0;//삭제 유무
-	objLife = 1000.0; //라이프
-	lifeTime = 1000.0; //라이프
+	Direction.x = 0.f;
+	Direction.y = 0.f;
+	Direction.z = 0.f;//삭제 유무
+	Direction.s = 0.f;//삭제 유무
+	objLife = 0.f; //라이프
+	lifeTime = 1000.f; //라이프
 }
 
 Object::~Object()
@@ -110,11 +110,11 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 	float objSpeed = 0.0f;
 	if (OBJECT_TYPE == OBJECT_CHARACTER)
 	{
-		objSpeed = 20.f;
+		objSpeed = 25.f;
 	}
 	else if (OBJECT_TYPE == OBJECT_BULLET)
 	{
-		objSpeed = 5.f;
+		objSpeed = 20.f;
 	}
 	else if (OBJECT_TYPE == OBJECT_ARROW)
 	{

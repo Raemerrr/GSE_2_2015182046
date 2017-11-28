@@ -54,9 +54,9 @@ void RenderScene(void)
 	SceneManager->ObjectDraw(OBJECT_ARROW, ArrowSpawnTime);
 
 	//충돌 체크 및 라이프, 라이프 타임 관리 //업데이트
-	SceneManager->ObjectCollition2((float)updateTime);
-	SceneManager->ObjectCollition1((float)updateTime);	//1에서 life < 0.f체크를 하기 떄문에 2보다 나중에 실행
-
+	SceneManager->Update((float)updateTime);
+	SceneManager->ObjectCollition2();
+	SceneManager->ObjectCollition1();	//1에서 life < 0.f체크를 하기 떄문에 2보다 나중에 실행
 	glutSwapBuffers();
 }
 
@@ -123,7 +123,7 @@ void MouseInput(int button, int state, int x, int y)
 			}
 			Data temp2 = { checkX,checkY,0.0f,0.0f };
 			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setDirection(temp2);
-			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setObjLife(1.f);
+			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setObjLife(100.f);
 
 			if (DrawObjCheck != 0)
 			{

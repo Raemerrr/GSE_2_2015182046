@@ -12,6 +12,7 @@ SceneMgr::SceneMgr()
 	g_Renderer = NULL;
 	bulletCount = 0;
 	arrowCount = 0;
+	AICharCount = 0;
 }
 
 SceneMgr::~SceneMgr()
@@ -25,35 +26,18 @@ SceneMgr::~SceneMgr()
 
 void SceneMgr::ObjectCreate(int Object_Type)
 {
-	//srand((unsigned)time(NULL));  //한번만 설정할 것.
-
 	if (Object_Type == OBJECT_CHARACTER)
 	{
 		obj = new Object[MAX_OBJECTS_COUNT]();
 		for (int i = 0; i < (MAX_OBJECTS_COUNT / 2); ++i)
 		{
-			//cout << " i : " << i << endl;
-			//Data TEAM1CharPos = { (rand() % MAX_SCREEN_WIDTH),rand() % (MAX_SCEEN_HEIGHT / 2),0.0f,MAX_OBJECTS_SIZE };
 			Data TEAM1CharColor = { 255.0f,0.0f,0.0f,255.0f };
-			Data TEAM1CharPos = { (float)(-250 + (rand() % MAX_SCREEN_WIDTH)),(float)(rand() % (MAX_SCEEN_HEIGHT / 2)),0.0f,(float)MAX_OBJECTS_SIZE };
+			Data TEAM1CharPos = { 0.f,0.f,0.f,-1.f };
 			obj[i].setPosition(TEAM1CharPos);
 			obj[i].setTeamNum(1);
-			/*SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setObjLifeTime(100000.0f);*/
-			obj[i].fixedObjLife(1.0f);
+			//obj[i].setObjLifeTime(100000.f);
+			obj[i].fixedObjLife(-1.f);
 			obj[i].setRGB(TEAM1CharColor);
-
-			float checkX = 1;
-			float checkY = 1;
-
-			if (rand() % 2 == 1)
-			{
-				checkX *= -1;
-			}if (rand() % 2 == 1)
-			{
-				checkY *= -1;
-			}
-			Data tempDirec = { checkX ,checkY,0.0f,0.0f };
-			obj[i].setDirection(tempDirec);
 		}
 		for (int i = (MAX_OBJECTS_COUNT / 2); i < MAX_OBJECTS_COUNT; ++i)
 		{
@@ -94,7 +78,7 @@ void SceneMgr::ObjectCreate(int Object_Type)
 		obj_BULLET = new Object[MAX_BULLET_COUNT]();
 		for (int i = 0; i < MAX_BULLET_COUNT; ++i)	//총알 초기화
 		{
-			Data temp = { (MAX_SCREEN_WIDTH*10),MAX_SCEEN_HEIGHT,0.f,MAX_BULLET_SIZE };
+			Data temp = { (MAX_SCREEN_WIDTH * 10),MAX_SCEEN_HEIGHT,0.f,MAX_BULLET_SIZE };
 			obj_BULLET[i].setPosition(temp);
 			obj_BULLET[i].fixedObjLife(10.0f);
 		}
@@ -104,7 +88,7 @@ void SceneMgr::ObjectCreate(int Object_Type)
 		obj_ARROW = new Object[MAX_ARROW_COUNT](); // 캐릭터 수 만큼 할당
 		for (int i = 0; i < MAX_ARROW_COUNT; ++i)	//총알 초기화
 		{
-			Data temp = { MAX_SCREEN_WIDTH,(MAX_SCEEN_HEIGHT*10),0.f,MAX_ARROW_SIZE };
+			Data temp = { MAX_SCREEN_WIDTH,(MAX_SCEEN_HEIGHT * 10),0.f,MAX_ARROW_SIZE };
 			obj_ARROW[i].setPosition(temp);
 			obj_ARROW[i].fixedObjLife(4.0f);
 		}
@@ -171,7 +155,7 @@ void SceneMgr::RendererDelete() {
 
 void SceneMgr::ObjectCollition1(float updateTime)
 {
-	
+
 	Data DeathPoint = { 999.f,999.f,999.f,-1.f };
 	Data DeathDirec = { 0.f,0.f,0.f,0.f };
 
@@ -337,10 +321,50 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 	{
 		for (int i = 0; i < (MAX_OBJECTS_COUNT / 2); ++i)			//team1 Character 그리기
 		{
+			int DrawObjCheck = 0;
 			Data pos = obj[i].getPosition();
 			Data rgb = obj[i].getRGB();
+			for (int j = 0; j < (MAX_OBJECTS_COUNT / 2); ++j)
+			{
+				if (obj[j].getObjLife() < 0.0f)
+				{
+					//cout << "SceneManager->getObject(" << j << ", OBJECT_CHARACTER)->getPosition().s < 0.0f 실행" << endl;
+					DrawObjCheck = AICharCount;
+					//cout << CheckObjectCount << endl;
+					AICharCount = j;
+					break;
+				}
+			}
 			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, (float)LEVEL_SKY);
 			g_Renderer->DrawSolidRectGauge(pos.x, pos.y + 10, pos.z, MAX_OBJECTS_SIZE * 3, 5, 1.f, 0.f, 0.f, 1.f, 1.f, (float)LEVEL_GOD);
+
+			if (timeSet > 3000)
+			{
+				Data TEAM1CharPos = { (float)(-250 + (rand() % MAX_SCREEN_WIDTH)),(float)(rand() % (MAX_SCEEN_HEIGHT / 2)),0.0f,(float)MAX_OBJECTS_SIZE };
+				obj[AICharCount].setPosition(TEAM1CharPos);
+				float checkX = 1;
+				float checkY = 1;
+
+				if (rand() % 2 == 1)
+				{
+					checkX *= -1;
+				}if (rand() % 2 == 1)
+				{
+					checkY *= -1;
+				}
+				Data tempDirec = { checkX ,checkY,0.0f,0.0f };
+				obj[AICharCount].setDirection(tempDirec);
+				obj[AICharCount].fixedObjLife(1.f);
+				if (DrawObjCheck != 0)
+				{
+					AICharCount = DrawObjCheck;
+				}
+				if (AICharCount < (MAX_OBJECTS_COUNT - 1) && DrawObjCheck == 0)
+				{
+					AICharCount++;
+				}
+				timeSet = 0;
+			}
 		}
 		for (int i = (MAX_OBJECTS_COUNT / 2); i < MAX_OBJECTS_COUNT; ++i)	//team2 Character 그리기
 		{
@@ -379,8 +403,10 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 	{
 		for (int i = 0; i < MAX_BULLET_COUNT; ++i)
 		{
+			int DrawObjCheck = 0;
 			Data pos = obj_BULLET[i].getPosition();
 			Data rgb = obj_BULLET[i].getRGB();
+
 			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, (float)LEVEL_GROUND);
 
 			if (timeSet > 3000)
@@ -392,7 +418,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					{
 						continue;
 					}
-					Data tempPos = { obj_BUILDING[t].getPosition().x,obj_BUILDING[t].getPosition().y,obj_BUILDING[t].getPosition().z,MAX_BULLET_SIZE };
+					Data tempPos = { tempCharPos.x,tempCharPos.y,tempCharPos.z,MAX_BULLET_SIZE };
 					obj_BULLET[bulletCount].setPosition(tempPos);
 					float checkX = 1;
 					float checkY = 1;
@@ -446,8 +472,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			{
 				for (int t = 0; t < MAX_OBJECTS_COUNT; ++t)
 				{
-					Data tempCharPos = obj[t].getPosition();
-					if (tempCharPos.s < 0.0f)
+					if (obj[t].getObjLife() < 0.0f)
 					{
 						continue;
 					}
@@ -482,7 +507,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					//cout << arrowCount << endl;
 					if (arrowCount >= MAX_ARROW_COUNT)
 					{
-						for (int u = 0; u < MAX_BULLET_COUNT; ++u)
+						for (int u = 0; u < MAX_ARROW_COUNT; ++u)
 						{
 							if (obj_ARROW[u].getPosition().s < 0.0) {
 								//cout << u << "번째 ARROW객체 재생성" << endl;

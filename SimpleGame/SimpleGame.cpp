@@ -16,9 +16,11 @@ SceneMgr *SceneManager = new SceneMgr();
 bool g_LButtonDown = false; //마우스 클릭 확인
 DWORD g_prevTime = 0;	//이전 시간 확인 변수
 
-int CheckObjectCount = (MAX_OBJECTS_COUNT/2); //오브젝트 갯수 확인
+int CheckObjectCount = (MAX_OBJECTS_COUNT / 2); //오브젝트 갯수 확인
+//오브젝트 리스폰 관리
 float CharSpawnTime = 0;
-float BuildSpawnTime = 0;
+float AICharSpawnTime = 0;
+float BuildSpawnTime = 0;	//유일하게 아직 사용하지 않는 함수
 float BulleltSpawnTime = 0;
 float ArrowSpawnTime = 0;
 int DrawObjCheck = 0; //그려져있는지 체크
@@ -38,13 +40,15 @@ void RenderScene(void)
 
 	// Renderer Test
 	//그리기함수
-	SceneManager->ObjectDraw(OBJECT_CHARACTER, CharSpawnTime);
+	CharSpawnTime += (float)updateTime;
+	AICharSpawnTime += (float)updateTime;
+	SceneManager->ObjectDraw(OBJECT_CHARACTER, AICharSpawnTime);
 
 	SceneManager->ObjectDraw(OBJECT_BUILDING, BuildSpawnTime);
-	
+
 	BulleltSpawnTime += (float)updateTime;
 	SceneManager->ObjectDraw(OBJECT_BULLET, BulleltSpawnTime);
-	
+
 	ArrowSpawnTime += (float)updateTime;
 	SceneManager->ObjectDraw(OBJECT_ARROW, ArrowSpawnTime);
 
@@ -66,17 +70,12 @@ void Idle(void)
 
 void MouseInput(int button, int state, int x, int y)
 {
-	x = (x - (MAX_SCREEN_WIDTH/2));
+	x = (x - (MAX_SCREEN_WIDTH / 2));
 	y = ((MAX_SCEEN_HEIGHT / 2) - y);
-	Data TEAM2CharColor = { 0.f,0.f, 255,255 };
-	Data Red = { 255.f,0.f, 0.f,1.f }; //빨강통일 
-	//DrawObjCheck = 0; //그려져있는지 체크
-	//int DrawArrCheck = 0; //화살 그려져있는지 체크
-	//DrawObjCheck = CheckObjectCount;
-	//DrawArrCheck = CheckArrowCount;
+
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-		if (!g_LButtonDown)
+		if (!g_LButtonDown && CharSpawnTime > 3000)
 		{
 			//cout << "DrawObjCheck : " << DrawObjCheck << " CheckObjectCount : " << CheckObjectCount << endl;
 			if (CheckObjectCount > MAX_OBJECTS_COUNT)
@@ -84,7 +83,7 @@ void MouseInput(int button, int state, int x, int y)
 				return;
 			}
 			DrawObjCheck = 0; //그려져있는지 체크
-			for (int j = (MAX_OBJECTS_COUNT/2); j < MAX_OBJECTS_COUNT; ++j)
+			for (int j = (MAX_OBJECTS_COUNT / 2); j < MAX_OBJECTS_COUNT; ++j)
 			{
 				if (SceneManager->getObject(j, OBJECT_CHARACTER)->getPosition().s < 0.0f)
 				{
@@ -98,8 +97,8 @@ void MouseInput(int button, int state, int x, int y)
 			}
 			//std::cout << "클릭되었습니다." << endl;
 			//cout << "x : " << x << " y : " << y << " CheckObjCount : " << CheckObjectCount << " DrawObjCheck :" << DrawObjCheck << endl;
+			g_LButtonDown = true;
 		}
-		g_LButtonDown = true;
 	}
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
 	{
@@ -111,9 +110,6 @@ void MouseInput(int button, int state, int x, int y)
 			Data temp1 = { (float)x,(float)y,0,MAX_OBJECTS_SIZE };
 			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setPosition(temp1);
 			/*SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setObjLifeTime(100000.0f);*/
-			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->fixedObjLife(1.0f);
-			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setRGB(TEAM2CharColor);
-			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setTeamNum(2);
 			float checkX = 1;
 			float checkY = 1;
 
@@ -127,16 +123,17 @@ void MouseInput(int button, int state, int x, int y)
 			Data temp2 = { checkX,checkY,0.0f,0.0f };
 			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setDirection(temp2);
 
-			if (DrawObjCheck != 0) 
+			if (DrawObjCheck != 0)
 			{
-			CheckObjectCount = DrawObjCheck;
+				CheckObjectCount = DrawObjCheck;
 			}
-			if (CheckObjectCount < (MAX_OBJECTS_COUNT-1) && DrawObjCheck == 0)
+			if (CheckObjectCount < (MAX_OBJECTS_COUNT - 1) && DrawObjCheck == 0)
 			{
 				CheckObjectCount++;
 			}
+			CharSpawnTime = 0;
+			g_LButtonDown = false;
 		}
-		g_LButtonDown = false;
 	}
 	RenderScene();
 }

@@ -15,6 +15,7 @@ private:
 	Object* obj_ARROW;
 	int bulletCount;
 	int arrowCount;
+	int AICharCount;
 	GLuint team1BulidingImg;
 	GLuint team2BulidingImg;
 

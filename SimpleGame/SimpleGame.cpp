@@ -17,13 +17,14 @@ bool g_LButtonDown = false; //마우스 클릭 확인
 DWORD g_prevTime = 0;	//이전 시간 확인 변수
 
 int CheckObjectCount = (MAX_OBJECTS_COUNT / 2); //오브젝트 갯수 확인
+int DrawObjCheck = 0; //그려져있는지 체크
+
 //오브젝트 리스폰 관리
 float CharSpawnTime = 0;
 float AICharSpawnTime = 0;
 float BuildSpawnTime = 0;	//유일하게 아직 사용하지 않는 함수
 float BulleltSpawnTime = 0;
 float ArrowSpawnTime = 0;
-int DrawObjCheck = 0; //그려져있는지 체크
 
 using namespace std;
 
@@ -85,13 +86,13 @@ void MouseInput(int button, int state, int x, int y)
 			DrawObjCheck = 0; //그려져있는지 체크
 			for (int j = (MAX_OBJECTS_COUNT / 2); j < MAX_OBJECTS_COUNT; ++j)
 			{
-				if (SceneManager->getObject(j, OBJECT_CHARACTER)->getPosition().s < 0.0f)
+				//cout << "CharSpawnTime : " << CharSpawnTime << " CheckObjectCount : " << CheckObjectCount << " DrawObjCheck : " << DrawObjCheck << endl;
+				if (SceneManager->getObject(j, OBJECT_CHARACTER)->getObjLife() < 0.0f)
 				{
 					//cout << "SceneManager->getObject(" << j << ", OBJECT_CHARACTER)->getPosition().s < 0.0f 실행" << endl;
 					DrawObjCheck = CheckObjectCount;
 					//cout << CheckObjectCount << endl;
 					CheckObjectCount = j;
-					//cout << "DrawObjCheck : " << DrawObjCheck << " CheckObjectCount : " << CheckObjectCount << endl;
 					break;
 				}
 			}
@@ -122,6 +123,7 @@ void MouseInput(int button, int state, int x, int y)
 			}
 			Data temp2 = { checkX,checkY,0.0f,0.0f };
 			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setDirection(temp2);
+			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setObjLife(1.f);
 
 			if (DrawObjCheck != 0)
 			{

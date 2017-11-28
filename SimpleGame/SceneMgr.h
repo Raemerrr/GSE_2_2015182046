@@ -27,8 +27,8 @@ public:
 	void ObjectAllDelete(const int);
 	void RendererCreate();
 	void RendererDelete();
-	Renderer* getRenderer();
-	void setRenderer(Renderer);
-	void ObjectCollition(int&, float);
+	void ObjectCollition1(float);
+	void ObjectCollition2(float);
+	//void ObjectCollition(int&, float);
 	void ObjectDraw(const int, float&);
 };

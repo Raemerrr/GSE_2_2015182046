@@ -33,7 +33,8 @@ void RenderScene(void)
 	g_prevTime = currentTime;
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearColor(0.0f, 0.3f, 0.3f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearDepth(1.f);
 
 	// Renderer Test
 	//그리기함수
@@ -52,7 +53,9 @@ void RenderScene(void)
 	//cout << "x값 : "<< SceneManager->getObject(0, OBJECT_ARROW)->getPosition().x << " y값 : " << SceneManager->getObject(0, OBJECT_ARROW)->getPosition().y << " s값 : " << SceneManager->getObject(0, OBJECT_ARROW)->getPosition().s <<endl;
 
 	//충돌 체크 및 라이프, 라이프 타임 관리 //업데이트
-	SceneManager->ObjectCollition(CheckObjectCount, (float)updateTime);
+	//SceneManager->ObjectCollition(CheckObjectCount, (float)updateTime);
+	SceneManager->ObjectCollition2((float)updateTime);
+	SceneManager->ObjectCollition1((float)updateTime);
 	glutSwapBuffers();
 }
 
@@ -69,8 +72,8 @@ void MouseInput(int button, int state, int x, int y)
 {
 	x = (x - (MAX_SCREEN_WIDTH/2));
 	y = ((MAX_SCEEN_HEIGHT / 2) - y);
-	Data TEAM2CharColor = { 0,0, 255,255 };
-	Data Red = { 255,0, 0,1.0 }; //빨강통일 
+	Data TEAM2CharColor = { 0.f,0.f, 255,255 };
+	Data Red = { 255.f,0.f, 0.f,1.f }; //빨강통일 
 	//DrawObjCheck = 0; //그려져있는지 체크
 	//int DrawArrCheck = 0; //화살 그려져있는지 체크
 	//DrawObjCheck = CheckObjectCount;
@@ -93,10 +96,9 @@ void MouseInput(int button, int state, int x, int y)
 					DrawObjCheck = CheckObjectCount;
 					//cout << CheckObjectCount << endl;
 					CheckObjectCount = j;
+					//cout << "DrawObjCheck : " << DrawObjCheck << " CheckObjectCount : " << CheckObjectCount << endl;
 					break;
 				}
-
-
 			}
 			//std::cout << "클릭되었습니다." << endl;
 			//cout << "x : " << x << " y : " << y << " CheckObjCount : " << CheckObjectCount << " DrawObjCheck :" << DrawObjCheck << endl;
@@ -129,10 +131,6 @@ void MouseInput(int button, int state, int x, int y)
 			Data temp2 = { checkX,checkY,0.0f,0.0f };
 			SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setDirection(temp2);
 
-			/*Data arrowPos = { SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->getPosition().x,SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->getPosition().y, SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->getPosition().z, MAX_ARROW_SIZE };
-			SceneManager->getObject(CheckObjectCount, OBJECT_ARROW)->setPosition(arrowPos);
-			SceneManager->getObject(CheckObjectCount, OBJECT_ARROW)->setDirection(temp2);
-			SceneManager->getObject(CheckObjectCount, OBJECT_ARROW)->fixedObjLife(1.0f);*/
 			if (DrawObjCheck != 0) 
 			{
 			CheckObjectCount = DrawObjCheck;
@@ -196,11 +194,11 @@ int main(int argc, char **argv)
 
 	glutMainLoop();
 
-	for (int i = 1; i <= 4; ++i) // ARROW 추가되면 4까지
-	{
-		SceneManager->ObjectAllDelete(i);
-	}
-	SceneManager->RendererDelete();
+	//for (int i = 1; i <= 4; ++i) // ARROW 추가되면 4까지
+	//{
+	//	SceneManager->ObjectAllDelete(i);
+	//}
+	//SceneManager->RendererDelete();
 	
 	return 0;
 }

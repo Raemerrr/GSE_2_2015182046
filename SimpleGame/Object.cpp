@@ -9,7 +9,7 @@ Object::Object()
 	Position.x = 999.0f;		//겹치지 않는 위치에서 시작하기 위함.(맵상에 존재 않하는 것 처럼)
 	Position.y = 999.0f;		//겹치지 않는 위치에서 시작하기 위함.
 	Position.z = 999.0f;		//겹치지 않는 위치에서 시작하기 위함.
-	Position.s = 0.0f;
+	Position.s = 1.0f;
 	Rgb.x = 0.0;
 	Rgb.y = 0.0;
 	Rgb.z = 0.0;
@@ -25,25 +25,7 @@ Object::Object()
 	objLife = 1000.0; //라이프
 	lifeTime = 1000.0; //라이프
 }
-//Object::Object(const Object& other) {
-//	Position.x = other.Position.x;		//겹치지 않는 위치에서 시작하기 위함.(맵상에 존재 않하는 것 처럼)
-//	Position.y = 999.0;		//겹치지 않는 위치에서 시작하기 위함.
-//	Position.z = 999.0;		//겹치지 않는 위치에서 시작하기 위함.
-//	Position.s = 0.0;
-//	Rgb.x = 0.0;
-//	Rgb.y = 0.0;
-//	Rgb.z = 0.0;
-//	Rgb.s = 1.0;
-//	vX = 0.0; //X의 방향
-//	vY = 0.0; //Y의 방향
-//
-//	Direction.x = 0.0;
-//	Direction.y = 0.0;
-//	Direction.z = 0.0;//삭제 유무
-//	Direction.s = 0.0;//삭제 유무
-//	objLife = 1000.0; //라이프
-//	lifeTime = 1000.0; //라이프
-//}
+
 Object::~Object()
 {
 }
@@ -128,15 +110,15 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 	float objSpeed = 0.0f;
 	if (OBJECT_TYPE == OBJECT_CHARACTER)
 	{
-		objSpeed = 100.0f;
+		objSpeed = 20.f;
 	}
 	else if (OBJECT_TYPE == OBJECT_BULLET)
 	{
-		objSpeed = 3.0f;
+		objSpeed = 5.f;
 	}
 	else if (OBJECT_TYPE == OBJECT_ARROW)
 	{
-		objSpeed = 5.0f;
+		objSpeed = 30.f;
 	}
 
 	elapsedTime = elapsedTime / 1000.f;
@@ -172,56 +154,21 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 	else if (OBJECT_TYPE == OBJECT_BULLET) {
 		Position.x = Position.x + vX * elapsedTime * objSpeed;	//이동구현
 		Position.y = Position.y + vY * elapsedTime * objSpeed;	//이동구현
+		//cout << "BULLET x : " << Position.x <<  endl;
 		//cout << Position.x << endl;
 		//Position.s = MAX_BULLET_SIZE;
-		//if (Position.x > 250 || Position.x < -250 || Position.y > 250 || Position.y < -250)
-		//{
-		//	/*float checkX = 1;
-		//	float checkY = 1;
-
-		//	if (rand() % 2 == 1)
-		//	{
-		//		checkX *= -1;
-		//	}if (rand() % 2 == 1)
-		//	{
-		//		checkY *= -1;
-		//	}
-		//	vX = checkX;
-		//	vY = checkY;*/
-		//	Position.s = 0.0f;
-		//	Position.x = 0.0f;
-		//	Position.y = 0.0f;
-		//	//cout << "장소 이탈" << endl;
-		//}
-
-		/*float checkX = 1;
-		float checkY = 1;
-
-		if (rand() % 2 == 1)
+		if (Position.x > screenX || Position.x < (-screenX) || Position.y > screenY || Position.y < (-screenY))
 		{
-			checkX *= -1;
-		}if (rand() % 2 == 1)
-		{
-			checkY *= -1;
+			vX = 0;
+			vY = 0;
+			Position.s = -1.0f;
+			Position.x = 999.0f;
+			Position.y = 999.0f;
+			//cout << "장소 이탈" << endl;
 		}
 
-		if (Position.x > 250) {
-			vX = checkX;
-			vY = (float)(rand() % 2);
-		}
-		if (Position.x < -250) {
-			vX = checkX;
-			vY = (float)(rand() % 2);
-		}
-		if (Position.y > 250) {
-			vX = (float)(rand() % 2);
-			vY = checkY;
-		}
-		if (Position.y < -250) {
-			vX = (float)(rand() % 2);
-			vY = checkY;
-		}*/
-		if (Position.x > screenX) {
+		//장소 이탈 전.
+		/*if (Position.x > screenX) {
 			vX = -vX;
 			vY = (float)(rand() % 2);
 		}
@@ -236,12 +183,23 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 		if (Position.y < (-screenY)) {
 			vY = -vY;
 			vX = (float)(rand() % 2);
-		}
+		}*/
 	}
 	else if (OBJECT_TYPE == OBJECT_ARROW) {
 		Position.x = Position.x + vX * elapsedTime * objSpeed;	//이동구현
 		Position.y = Position.y + vY * elapsedTime * objSpeed;	//이동구현		
-		if (Position.x > screenX) {
+		if (Position.x > screenX || Position.x < (-screenX) || Position.y > screenY || Position.y < (-screenY))
+		{
+			vX = 0;
+			vY = 0;
+			Position.s = -1.0f;
+			Position.x = 999.0f;
+			Position.y = 999.0f;
+			//cout << "장소 이탈" << endl;
+		}
+																
+		//장소 이탈 전.													
+		/*if (Position.x > screenX) {
 			vX = -vX;
 			vY = (float)(rand() % 2);
 		}
@@ -256,6 +214,6 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 		if (Position.y < (-screenY)) {
 			vY = -vY;
 			vX = (float)(rand() % 2);
-		}
+		}*/
 	}
 }

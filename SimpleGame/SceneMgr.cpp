@@ -35,7 +35,7 @@ void SceneMgr::ObjectCreate(int Object_Type)
 			//cout << " i : " << i << endl;
 			//Data TEAM1CharPos = { (rand() % MAX_SCREEN_WIDTH),rand() % (MAX_SCEEN_HEIGHT / 2),0.0f,MAX_OBJECTS_SIZE };
 			Data TEAM1CharColor = { 255.0f,0.0f,0.0f,255.0f };
-			Data TEAM1CharPos = { -250 + (rand() % MAX_SCREEN_WIDTH),rand() % (MAX_SCEEN_HEIGHT / 2),0.0f,MAX_OBJECTS_SIZE };
+			Data TEAM1CharPos = { (float)(-250 + (rand() % MAX_SCREEN_WIDTH)),(float)(rand() % (MAX_SCEEN_HEIGHT / 2)),0.0f,(float)MAX_OBJECTS_SIZE };
 			obj[i].setPosition(TEAM1CharPos);
 			obj[i].setTeamNum(1);
 			/*SceneManager->getObject(DrawObjCheck, OBJECT_CHARACTER)->setObjLifeTime(100000.0f);*/
@@ -145,13 +145,9 @@ Object* SceneMgr::getObject(int i, int Object_Type)
 	{
 		return &obj_BULLET[i];
 	}
-	else if (Object_Type == OBJECT_ARROW)
+	else// if (Object_Type == OBJECT_ARROW)
 	{
 		return &obj_ARROW[i];
-	}
-	else
-	{
-		return nullptr;
 	}
 }
 
@@ -172,228 +168,6 @@ void SceneMgr::RendererCreate() {
 void SceneMgr::RendererDelete() {
 	delete g_Renderer;
 }
-
-//void SceneMgr::ObjectCollition(int& MAX, float updateTime)
-//{
-//	//Data Red = { 255,0, 0,1.0 }; //빨강통일 
-//	//Data White = { 255,255, 255,1.0 };
-//	//Data Blue = { 0.0,0.0,255,1.0 };
-//	//for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
-//	//{
-//	//	obj[i].setRGB(White);
-//	//	if (obj[i].getPosition().s > 0.0f)
-//	//	{
-//	//		int Size = MAX_OBJECTS_SIZE / 2;
-//
-//	//		Data charRect = obj[i].getPosition();
-//	//		for (int j = 0; j < MAX_OBJECTS_COUNT; ++j)
-//	//		{
-//	//			if (i == j)
-//	//			{
-//	//				continue;
-//	//			}
-//	//			Data buildRect = obj[j].getPosition();
-//	//			if ((charRect.x - Size) < (buildRect.x + Size) && (charRect.x + Size) > (buildRect.x - Size) && (charRect.y - Size) < (buildRect.y + Size) && (charRect.y + Size) > (buildRect.y - Size))
-//	//			{
-//	//				obj[i].setRGB(Red);
-//	//				obj[i].setObjLife((-1.0));
-//	//			}
-//	//		}
-//	//		if (obj[i].getObjLife() <= 0.0 || obj[i].getObjLifeTime() < 0.0f)
-//	//		{
-//	//			Data temp = { 0.0,0.0,0.0,-1.0 };
-//	//			obj[i].setPosition(temp); //사이즈가 -1 이니 False 상태라 봄
-//	//			MAX--;
-//	//			//delete &obj[i];
-//	//			//obj[i] = nullptr;
-//	//		}
-//	//		else
-//	//		{
-//	//			obj[i].Update((float)updateTime);
-//
-//	//		}
-//	//	}
-//	//}
-//	//-------------------OBJECT_CHARACTER 간의 충돌 잠시 주석처리
-//	Data Red = { 255,0, 0,1.0 }; //빨강통일 
-//	Data White = { 255,255, 255,1.0 };
-//	Data Blue = { 0.0,0.0,255,1.0 };
-//	Data TEAM2CharColor = { 0,0, 255,255 };
-//
-//	int obj_Character_Size = MAX_OBJECTS_SIZE / 2;
-//	int obj_Building_Size = MAX_BUILDING_SIZE / 2;
-//	int obj_Bullet_Size = MAX_BULLET_SIZE / 2;
-//	int obj_Arrow_Size = MAX_ARROW_SIZE / 2;
-//
-//
-//	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
-//	{
-//		if (obj[i].getPosition().s < 0.0f || obj[i].getObjLifeTime() < 0.0)	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
-//		{
-//			continue;
-//		}
-//		Data TEAM1CharColor = { 255.0f,0.0f,0.0f,255.0f };
-//		Data TEAM2CharColor = { 0.0f,0.0f, 255.0f,255.0f };
-//		if (i < (MAX_OBJECTS_COUNT / 2))
-//		{
-//			obj[i].setRGB(TEAM1CharColor);
-//		}
-//		else
-//		{
-//			obj[i].setRGB(TEAM2CharColor);
-//		}
-//		//obj[i].setRGB(TEAM2CharColor);
-//
-//		Data charRect = obj[i].getPosition();
-//		Data arrowRect = obj_ARROW[i].getPosition();
-//
-//		for (int j = 0; j < MAX_BUILDING_COUNT; ++j)
-//		{
-//			if (obj[i].getPosition().s < 0.0)
-//			{
-//				break;
-//			}
-//			if (obj_BUILDING[j].getPosition().s < 0.0f || obj_BUILDING[j].getObjLifeTime() < 0.0 || obj_BUILDING[j].getTeamNum() == obj[i].getTeamNum() || obj_ARROW[i].getTeamNum() == obj_BUILDING[j].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
-//			{
-//				continue;
-//			}
-//			Data buildRect = obj_BUILDING[j].getPosition();
-//			//cout << "빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
-//			/*if (i == j)
-//			{
-//				continue;
-//			}*/
-//			if (((charRect.x - obj_Character_Size) < (buildRect.x + obj_Building_Size) && (charRect.x + obj_Character_Size) > (buildRect.x - obj_Building_Size) && (charRect.y - obj_Character_Size) < (buildRect.y + obj_Building_Size) && (charRect.y + obj_Character_Size) > (buildRect.y - obj_Building_Size)))
-//			{
-//				//cout << j << " 빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
-//				obj[i].setRGB(Red);
-//				obj_BUILDING[j].setObjLife((-100.00f));
-//				obj[i].setObjLife(-5.0f);
-//				if (obj[i].getObjLife() < 0.0 && obj[i].getObjLife() != -1.0f)
-//				{
-//					Data temp2 = { 999.0,999.0,999.0,-1.0 };
-//					obj[i].setPosition(temp2);			//사이즈가 -1 이니 False 상태라 봄
-//					obj[i].fixedObjLife(-1.0f);			//-1로 라이프를 설정하면 충돌체크, 재발사 등 동작 하지 않음.
-//					//MAX--;
-//				}
-//			}
-//			if ((arrowRect.x - obj_Arrow_Size) < (buildRect.x + obj_Building_Size) && (arrowRect.x + obj_Arrow_Size) > (buildRect.x - obj_Building_Size) && (arrowRect.y - obj_Arrow_Size) < (buildRect.y + obj_Building_Size) && (arrowRect.y + obj_Arrow_Size) > (buildRect.y - obj_Building_Size))
-//			{
-//				//cout << j << "빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
-//				obj_ARROW[i].setRGB(Red);
-//				obj_BUILDING[j].setObjLife((-50.00f));
-//				obj_ARROW[i].setObjLife(-10.0f);
-//				if (obj_ARROW[i].getObjLife() < 0.0f && obj_ARROW[i].getObjLife() != -1.0f)
-//				{
-//					Data temp2 = { 999.0,999.0,999.0,-1.0 };
-//					Data temp = { 0.0,0.0,0.0,-1.0 };
-//					obj_ARROW[i].setPosition(temp2);
-//					obj_ARROW[i].setDirection(temp);
-//					obj_ARROW[i].fixedObjLife(-1.0f);
-//				}
-//			}
-//			if (obj[i].getObjLife() < 0.0f &&obj[i].getObjLife() != -1.0f)
-//			{
-//				Data temp2 = { 999.0,999.0,999.0,-1.0 };
-//				obj[i].setPosition(temp2);			//사이즈가 -1 이니 False 상태라 봄
-//				obj[i].fixedObjLife(-1.0f);			//-1로 라이프를 설정하면 충돌체크, 재발사 등 동작 하지 않음.
-//				//MAX--;
-//			}
-//			//if (obj_ARROW[i].getObjLife() <= 0.0f)
-//			//{
-//			//	Data temp2 = { 999.0,999.0,999.0,-1.0 };
-//			//	obj_ARROW[i].setPosition(temp2);			//사이즈가 -1 이니 False 상태라 봄
-//			//	//MAX--;										//obj[i].fixedObjLife(-1.0f); -1로 라이프를 설정하면 충돌체크, 재발사 등 동작 하지 않음.
-//			//	
-//			//}
-//			if (obj_BUILDING[j].getObjLife() < 0.0 && obj_BUILDING[j].getObjLife() != -1.0f)//|| obj_BUILDING[i].getObjLifeTime() < 0.0f
-//			{
-//				Data temp = { 999.0,999.0,999.0,-1.0 };
-//				obj_BUILDING[j].setPosition(temp); //사이즈가 -1 이니 False 상태라 봄
-//				obj_BUILDING[j].fixedObjLife(-1.0);
-//				//delete &obj_BUILDING[i];
-//				//obj[i] = nullptr;
-////for (int r = 0; r < MAX_BULLET_COUNT; ++r)
-////{
-////	Data temp2 = { 999.0,999.0,999.0,-1.0 };
-////	obj_BULLET[r].setPosition(temp2);			//사이즈가 -1 이니 False 상태라 봄
-////	obj_BULLET[r].fixedObjLife(-1.0f);			//-1로 라이프를 설정하면 충돌체크, 재발사 등 동작 하지 않음.
-////}
-//			}
-//		}
-//		for (int q = 0; q < MAX_BULLET_COUNT; ++q)
-//		{
-//			if (obj[i].getPosition().s < 0.0)
-//			{
-//				break;
-//			}
-//			if (obj_BULLET[q].getPosition().s < 0.0f || obj_BULLET[q].getTeamNum() == obj[i].getTeamNum() || obj_ARROW[i].getTeamNum() == obj_BULLET[q].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
-//			{
-//				continue;
-//			}
-//			Data bulletRect = obj_BULLET[q].getPosition();
-//			/*if (obj_BULLET[q].getObjLife() < 0.0f)
-//			{
-//				continue;
-//			}*/
-//			if ((charRect.x - obj_Character_Size) < (bulletRect.x + obj_Bullet_Size) && (charRect.x + obj_Character_Size) > (bulletRect.x - obj_Bullet_Size) && (charRect.y - obj_Character_Size) < (bulletRect.y + obj_Bullet_Size) && (charRect.y + obj_Character_Size) > (bulletRect.y - obj_Bullet_Size))
-//			{
-//				//cout << "총알의 체력 : " << obj_BULLET[q].getObjLife() << endl;
-//				obj[i].setRGB(Red);
-//				obj_BULLET[q].setObjLife((-10.00f));
-//				if (obj_BULLET[q].getObjLife() < 0.0)//|| obj_BUILDING[i].getObjLifeTime() < 0.0f
-//				{
-//					Data temp = { 999.0,999.0,999.0,-1 };
-//					obj_BULLET[q].setPosition(temp);			//사이즈가 -1 이니 False 상태라 봄
-//					//obj_BULLET[q].fixedObjLife(10.0f);			//delete &obj_BUILDING[i];
-//																//obj[i] = nullptr;
-//				}
-//			}
-//			else
-//			{
-//				obj_BULLET[q].Update((float)updateTime, OBJECT_BULLET);
-//			}
-//		}
-//		for (int z = 0; z < MAX_OBJECTS_COUNT; ++z)
-//		{
-//			if (obj[i].getPosition().s < 0.0)
-//			{
-//				break;
-//			}
-//			Data arrowRect2 = obj_ARROW[z].getPosition();
-//
-//			if (i == z || obj_ARROW[z].getPosition().s <= 0.0f || obj_ARROW[z].getObjLife() <= 0.0f || obj_ARROW[z].getTeamNum() == obj[i].getTeamNum())
-//			{
-//				continue;
-//			}
-//			if (((charRect.x - obj_Character_Size) < (arrowRect2.x + obj_Arrow_Size) && (charRect.x + obj_Character_Size) > (arrowRect2.x - obj_Arrow_Size) && (charRect.y - obj_Character_Size) < (arrowRect2.y + obj_Arrow_Size) && (charRect.y + obj_Character_Size) > (arrowRect2.y - obj_Arrow_Size)))
-//			{
-//				//cout << "충돌" << endl;
-//				Data tmp = { 999.0,999.0,999.0,-1.0 };
-//				Data tmp2 = { 0.0,0.0,0.0,0.0 };
-//				obj[i].setPosition(tmp);
-//				obj_ARROW[z].setPosition(tmp);
-//				obj[i].setDirection(tmp2);
-//				obj_ARROW[z].setDirection(tmp2);
-//				obj[i].setObjLife(-(obj[i].getObjLife()));
-//				obj_ARROW[z].setObjLife(-10);
-//				//MAX--;
-//				//return;
-//			}
-//			else
-//			{
-//				obj_ARROW[z].Update((float)updateTime, OBJECT_ARROW);
-//			}
-//		}
-//		/*for (int a = 0; a < MAX_OBJECTS_COUNT; ++a)
-//		{
-//			obj_ARROW[a].Update((float)updateTime, OBJECT_ARROW);
-//		}*/
-//
-//
-//		obj[i].Update((float)updateTime, OBJECT_CHARACTER);
-//	}
-//}
 
 void SceneMgr::ObjectCollition1(float updateTime)
 {
@@ -461,16 +235,12 @@ void SceneMgr::ObjectCollition1(float updateTime)
 				obj_ARROW[z].fixedObjLife(-1.f);
 			}
 		}
-
-
-		//obj[i].Update((float)updateTime, OBJECT_CHARACTER);
 		for (int t = 0; t < MAX_OBJECTS_COUNT; ++t)
 		{
 			if (obj[t].getObjLife() < 0.0)
 			{
 				obj[t].setPosition(DeathPoint);			//사이즈가 -1 이니 False 상태라 봄
-				obj[t].fixedObjLife(-1.0f);			//-1로 라이프를 설정하면 충돌체크, 재발사 등 동작 하지 않음.
-													//MAX--;
+				obj[t].fixedObjLife(-1.0f);				//-1로 라이프를 설정하면 충돌체크, 재발사 등 동작 하지 않음.
 			}
 			else
 			{
@@ -520,11 +290,9 @@ void SceneMgr::ObjectCollition2(float updateTime)
 	int obj_Bullet_Size = MAX_BULLET_SIZE / 2;
 	int obj_Arrow_Size = MAX_ARROW_SIZE / 2;
 
-
-
 	for (int i = 0; i < MAX_BUILDING_COUNT; ++i)
 	{
-		if (obj_BUILDING[i].getPosition().s < 0.0f || obj_BUILDING[i].getObjLifeTime() < 0.0)	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
+		if (obj_BUILDING[i].getPosition().s < 0.0f)// || obj_BUILDING[i].getObjLifeTime() < 0.0)	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
 		{
 			continue;
 		}
@@ -539,7 +307,7 @@ void SceneMgr::ObjectCollition2(float updateTime)
 			Data bulletRect = obj_BULLET[q].getPosition();
 			if ((buildRect.x - obj_Building_Size) < (bulletRect.x + obj_Bullet_Size) && (buildRect.x + obj_Building_Size) > (bulletRect.x - obj_Bullet_Size) && (buildRect.y - obj_Building_Size) < (bulletRect.y + obj_Bullet_Size) && (buildRect.y + obj_Building_Size) > (bulletRect.y - obj_Bullet_Size))
 			{
-				obj_BUILDING[i].setObjLife(-10.f);
+				obj_BUILDING[i].setObjLife(-30.f);
 				obj_BULLET[q].setObjLife((-10.f));
 			}
 		}
@@ -553,11 +321,9 @@ void SceneMgr::ObjectCollition2(float updateTime)
 			}
 			if (((buildRect.x - obj_Building_Size) < (arrowRect2.x + obj_Arrow_Size) && (buildRect.x + obj_Building_Size) > (arrowRect2.x - obj_Arrow_Size) && (buildRect.y - obj_Building_Size) < (arrowRect2.y + obj_Arrow_Size) && (buildRect.y + obj_Building_Size) > (arrowRect2.y - obj_Arrow_Size)))
 			{
-				obj_BUILDING[i].setPosition(DeathPoint);
 				obj_ARROW[z].setPosition(DeathPoint);
-				obj_BUILDING[i].setDirection(DeathDirec);
 				obj_ARROW[z].setDirection(DeathDirec);
-				obj_BUILDING[i].setObjLife(-10.f);
+				obj_BUILDING[i].setObjLife(-50.f);
 				obj_ARROW[z].fixedObjLife(-1.f);
 			}
 		}
@@ -681,11 +447,12 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 				for (int t = 0; t < MAX_OBJECTS_COUNT; ++t)
 				{
 					Data tempCharPos = obj[t].getPosition();
-					if (tempCharPos.s < 0.0f || obj[t].getPosition().s)
+					if (tempCharPos.s < 0.0f)
 					{
 						continue;
 					}
 					Data tempPos = { obj[t].getPosition().x,obj[t].getPosition().y,obj[t].getPosition().z,MAX_ARROW_SIZE };
+					obj_ARROW[arrowCount].setPosition(tempPos);
 					float checkX = 1;
 					float checkY = 1;
 
@@ -698,16 +465,15 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					}
 					Data tempDirec = { checkX ,checkY,0.0f,0.0f };
 					obj_ARROW[arrowCount].setDirection(tempDirec);
-					obj_ARROW[arrowCount].setPosition(tempPos);
 					if (t < (MAX_OBJECTS_COUNT / 2))
 					{
-						Data Team1ArrowColor = { 255,0,0,255 };
+						Data Team1ArrowColor = { 255.f,0.f,0.f,255.f };
 						obj_ARROW[arrowCount].setTeamNum(1);
 						obj_ARROW[arrowCount].setRGB(Team1ArrowColor);
 					}
 					else
 					{
-						Data Team2ArrowColor = { 0,0,255,255 };
+						Data Team2ArrowColor = { 0.f,0.f,255.f,255.f };
 						obj_ARROW[arrowCount].setTeamNum(2);
 						obj_ARROW[arrowCount].setRGB(Team2ArrowColor);
 

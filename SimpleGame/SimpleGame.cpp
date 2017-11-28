@@ -43,19 +43,15 @@ void RenderScene(void)
 	SceneManager->ObjectDraw(OBJECT_BUILDING, BuildSpawnTime);
 	
 	BulleltSpawnTime += (float)updateTime;
-	//cout << BulleltSpawnTime << endl;
-	SceneManager->ObjectDraw(OBJECT_BULLET, BulleltSpawnTime);	//현재 3번째 인자값 CheckObjectCount는 ArrowDraw 시만 이용됨
-	//cout << "x값 : "<< SceneManager->getObject(0, OBJECT_BULLET)->getPosition().x << " y값 : " << SceneManager->getObject(0, OBJECT_BULLET)->getPosition().y << " s값 : " << SceneManager->getObject(0, OBJECT_BULLET)->getPosition().s <<endl;
+	SceneManager->ObjectDraw(OBJECT_BULLET, BulleltSpawnTime);
 	
 	ArrowSpawnTime += (float)updateTime;
-	//cout << ArrowSpawnTime << endl;
-	SceneManager->ObjectDraw(OBJECT_ARROW, ArrowSpawnTime);	//현재 3번째 인자값 CheckObjectCount는 ArrowDraw 시만 이용됨
-	//cout << "x값 : "<< SceneManager->getObject(0, OBJECT_ARROW)->getPosition().x << " y값 : " << SceneManager->getObject(0, OBJECT_ARROW)->getPosition().y << " s값 : " << SceneManager->getObject(0, OBJECT_ARROW)->getPosition().s <<endl;
+	SceneManager->ObjectDraw(OBJECT_ARROW, ArrowSpawnTime);
 
 	//충돌 체크 및 라이프, 라이프 타임 관리 //업데이트
-	//SceneManager->ObjectCollition(CheckObjectCount, (float)updateTime);
 	SceneManager->ObjectCollition2((float)updateTime);
-	SceneManager->ObjectCollition1((float)updateTime);
+	SceneManager->ObjectCollition1((float)updateTime);	//1에서 life < 0.f체크를 하기 떄문에 2보다 나중에 실행
+
 	glutSwapBuffers();
 }
 
@@ -176,10 +172,7 @@ int main(int argc, char **argv)
 	}
 
 	SceneManager->RendererCreate();
-	//SceneManager->ObjectCreate(OBJECT_CHARACTER); //캐릭터 객체생성
-	//SceneManager->ObjectCreate(OBJECT_BUILDING); //건물 객체생성
-	//SceneManager->ObjectCreate(OBJECT_BULLET); //총알 객체생성
-	//SceneManager->ObjectCreate(OBJECT_ARROW); //캐릭총알 객체생성
+
 	for (int i = 1; i <= 4; ++i) // ARROW 추가되면 4까지
 	{
 		SceneManager->ObjectCreate(i);
@@ -194,11 +187,5 @@ int main(int argc, char **argv)
 
 	glutMainLoop();
 
-	//for (int i = 1; i <= 4; ++i) // ARROW 추가되면 4까지
-	//{
-	//	SceneManager->ObjectAllDelete(i);
-	//}
-	//SceneManager->RendererDelete();
-	
 	return 0;
 }

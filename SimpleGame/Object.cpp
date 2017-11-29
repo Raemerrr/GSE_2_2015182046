@@ -116,7 +116,8 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 	}
 	else if (OBJECT_TYPE == OBJECT_BULLET)
 	{
-		objSpeed = 600.f;
+		objSpeed = 600.f; 
+		//objSpeed = 100.f; 가장 이상적인 속도
 	}
 	else if (OBJECT_TYPE == OBJECT_ARROW)
 	{

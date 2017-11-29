@@ -14,6 +14,7 @@ SceneMgr::SceneMgr()
 	arrowCount = 0;
 	AICharCount = 0;
 	CharMove = 0.f;
+	ParticleTime = 0.f;
 }
 
 SceneMgr::~SceneMgr()
@@ -153,6 +154,7 @@ void SceneMgr::RendererCreate() {
 	BackgroundImg = g_Renderer->CreatePngTexture("./Resource/Background.png");
 	Charater1Img = g_Renderer->CreatePngTexture("./Resource/Charac1.png");
 	Charater2Img = g_Renderer->CreatePngTexture("./Resource/Charac2.png");
+	BulletparticleImg = g_Renderer->CreatePngTexture("./Resource/Bulletparticle2.png"); 
 }
 
 void SceneMgr::RendererDelete() {
@@ -164,6 +166,7 @@ void SceneMgr::Update(float updateTime)
 	Data DeathDirec = { 0.f,0.f,0.f,0.f };
 
 	CharMove += (updateTime*0.17);
+	ParticleTime += (updateTime*0.0005);
 
 	for (int t = 0; t < MAX_OBJECTS_COUNT; ++t)
 	{
@@ -351,17 +354,6 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					break;
 				}
 			}
-			//g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, (float)LEVEL_SKY);
-			/*if (obj[AICharCount].getDirection().x > 0 && obj[AICharCount].getDirection().y > 0)
-			{
-
-
-			}
-			else
-			{
-				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, CharaterImg, 1, 0, 3, 4, (float)LEVEL_SKY);
-
-			}*/
 			if (obj[i].getDirection().y < 0.f && obj[i].getDirection().x == 0)
 			{
 				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)CharMove, 0, 3, 4, (float)LEVEL_SKY);
@@ -417,7 +409,6 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			float CharHealth = obj[i].getObjLife() / MAX_OBJECTS_LIFE;
 			Data pos = obj[i].getPosition();
 			Data rgb = obj[i].getRGB();
-			//g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, 0);
 			if (obj[i].getDirection().y < 0.f && obj[i].getDirection().x == 0)
 			{
 				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)CharMove, 0, 3, 4, (float)LEVEL_SKY);
@@ -469,6 +460,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			//int DrawBulCheck = 0;
 			Data pos = obj_BULLET[i].getPosition();
 			Data rgb = obj_BULLET[i].getRGB();
+			Data Direc = obj_BULLET[i].getDirection();
 			/*for (int j = 0; j < MAX_BULLET_COUNT; ++j)
 			{
 				if (obj_BULLET[j].getObjLife() <= 0.0f)
@@ -478,10 +470,10 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					break;
 				}
 			}*/
-			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, (float)LEVEL_GROUND);
-
+			g_Renderer->DrawParticle(pos.x, pos.y, pos.z, pos.s, 1, 1, 1, 1, 0, -(Direc.y), BulletparticleImg, ParticleTime);
 			if (timeSet > 1000)
 			{
+				
 				for (int t = 0; t < MAX_BUILDING_COUNT; ++t)
 				{
 					if (obj_BUILDING[t].getObjLife() <= 0.f || obj_BULLET[bulletCount].getPosition().s == MAX_BULLET_SIZE)

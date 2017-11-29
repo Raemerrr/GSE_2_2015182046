@@ -9,6 +9,7 @@ private:
 	float vX;
 	float vY;
 	float CharMove;
+	float ParticleTime;
 	Object* obj;
 	Renderer* g_Renderer;
 	Object* obj_BUILDING;
@@ -22,6 +23,7 @@ private:
 	GLuint BackgroundImg;
 	GLuint Charater1Img;
 	GLuint Charater2Img;
+	GLuint BulletparticleImg;
 public:
 	SceneMgr();
 	~SceneMgr();

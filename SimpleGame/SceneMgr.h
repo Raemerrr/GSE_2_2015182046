@@ -8,6 +8,7 @@ class SceneMgr
 private:
 	float vX;
 	float vY;
+	float CharMove;
 	Object* obj;
 	Renderer* g_Renderer;
 	Object* obj_BUILDING;
@@ -18,7 +19,9 @@ private:
 	int AICharCount;
 	GLuint team1BulidingImg;
 	GLuint team2BulidingImg;
-
+	GLuint BackgroundImg;
+	GLuint Charater1Img;
+	GLuint Charater2Img;
 public:
 	SceneMgr();
 	~SceneMgr();

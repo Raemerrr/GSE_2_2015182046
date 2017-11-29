@@ -13,6 +13,7 @@ SceneMgr::SceneMgr()
 	bulletCount = 0;
 	arrowCount = 0;
 	AICharCount = 0;
+	CharMove = 0.f;
 }
 
 SceneMgr::~SceneMgr()
@@ -149,6 +150,9 @@ void SceneMgr::RendererCreate() {
 	}
 	team1BulidingImg = g_Renderer->CreatePngTexture("./Resource/1team_building.png");
 	team2BulidingImg = g_Renderer->CreatePngTexture("./Resource/2team_building.png");
+	BackgroundImg = g_Renderer->CreatePngTexture("./Resource/Background.png");
+	Charater1Img = g_Renderer->CreatePngTexture("./Resource/Charac1.png");
+	Charater2Img = g_Renderer->CreatePngTexture("./Resource/Charac2.png");
 }
 
 void SceneMgr::RendererDelete() {
@@ -158,6 +162,8 @@ void SceneMgr::Update(float updateTime)
 {
 	Data DeathPoint = { 999.f,999.f,999.f,-1.f };
 	Data DeathDirec = { 0.f,0.f,0.f,0.f };
+
+	CharMove += (updateTime*0.17);
 
 	for (int t = 0; t < MAX_OBJECTS_COUNT; ++t)
 	{
@@ -239,8 +245,8 @@ void SceneMgr::ObjectCollition1()
 			if (((charRect.x - obj_Character_Size) < (buildRect.x + obj_Building_Size) && (charRect.x + obj_Character_Size) > (buildRect.x - obj_Building_Size) && (charRect.y - obj_Character_Size) < (buildRect.y + obj_Building_Size) && (charRect.y + obj_Character_Size) > (buildRect.y - obj_Building_Size)))
 			{
 				//cout << j << " ºôµùÀÇ Ã¼·Â : " << obj_BUILDING[j].getObjLife() << endl;
-				obj_BUILDING[j].setObjLife((-obj[i].getObjLife()));
-				obj[i].setObjLife((-obj[i].getObjLife()));
+				obj_BUILDING[j].setObjLife(-(obj[i].getObjLife()));
+				obj[i].setObjLife(-(obj[i].getObjLife()));
 			}
 		}
 
@@ -254,8 +260,8 @@ void SceneMgr::ObjectCollition1()
 			Data bulletRect = obj_BULLET[q].getPosition();
 			if ((charRect.x - obj_Character_Size) < (bulletRect.x + obj_Bullet_Size) && (charRect.x + obj_Character_Size) > (bulletRect.x - obj_Bullet_Size) && (charRect.y - obj_Character_Size) < (bulletRect.y + obj_Bullet_Size) && (charRect.y + obj_Character_Size) > (bulletRect.y - obj_Bullet_Size))
 			{
-				obj[i].setObjLife((-obj_BULLET[q].getObjLife()));
-				obj_BULLET[q].setObjLife((-obj_BULLET[q].getObjLife()));
+				obj[i].setObjLife(-(obj_BULLET[q].getObjLife()));
+				obj_BULLET[q].setObjLife(-(obj_BULLET[q].getObjLife()));
 			}
 		}
 
@@ -274,7 +280,7 @@ void SceneMgr::ObjectCollition1()
 				obj[i].setDirection(DeathDirec);
 				obj_ARROW[z].setDirection(DeathDirec);
 				obj[i].setObjLife(-(obj[i].getObjLife()));
-				obj_ARROW[z].fixedObjLife(-1.f);
+				obj_ARROW[z].fixedObjLife(-(obj_ARROW[z].getObjLife()));
 			}
 		}
 	}
@@ -326,6 +332,7 @@ void SceneMgr::ObjectCollition2()
 }
 
 void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
+	g_Renderer->DrawTexturedRect(0, 0, 0, MAX_SCREEN_WIDTH, 1.f, 1.f, 1.f, 1.f, BackgroundImg, LEVEL_UNDERGROUND);
 
 	if (Object_Type == OBJECT_CHARACTER)
 	{
@@ -344,7 +351,33 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					break;
 				}
 			}
-			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, (float)LEVEL_SKY);
+			//g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, (float)LEVEL_SKY);
+			/*if (obj[AICharCount].getDirection().x > 0 && obj[AICharCount].getDirection().y > 0)
+			{
+
+
+			}
+			else
+			{
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, CharaterImg, 1, 0, 3, 4, (float)LEVEL_SKY);
+
+			}*/
+			if (obj[i].getDirection().y < 0.f && obj[i].getDirection().x == 0)
+			{
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)CharMove, 0, 3, 4, (float)LEVEL_SKY);
+			}
+			else if (obj[i].getDirection().y > 0.f && obj[i].getDirection().x == 0)
+			{
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)CharMove, 3, 3, 4, (float)LEVEL_SKY);
+			}
+			else if (obj[i].getDirection().x > 0)
+			{
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)CharMove, 2, 3, 4, (float)LEVEL_SKY);
+			}
+			else if (obj[i].getDirection().x < 0)
+			{
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)CharMove, 1, 3, 4, (float)LEVEL_SKY);
+			}
 			g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_OBJECTS_SIZE *0.8), pos.z, (float)MAX_OBJECTS_SIZE, 5, 1.f, 0.f, 0.f, 1.f, CharHealth, (float)LEVEL_GOD);
 
 			if (timeSet > 1000)
@@ -384,7 +417,23 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			float CharHealth = obj[i].getObjLife() / MAX_OBJECTS_LIFE;
 			Data pos = obj[i].getPosition();
 			Data rgb = obj[i].getRGB();
-			g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, 0);
+			//g_Renderer->DrawSolidRect(pos.x, pos.y, pos.z, pos.s, rgb.x, rgb.y, rgb.z, rgb.s, 0);
+			if (obj[i].getDirection().y < 0.f && obj[i].getDirection().x == 0)
+			{
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)CharMove, 0, 3, 4, (float)LEVEL_SKY);
+			}
+			else if (obj[i].getDirection().y > 0.f && obj[i].getDirection().x == 0)
+			{
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)CharMove, 3, 3, 4, (float)LEVEL_SKY);
+			}
+			else if (obj[i].getDirection().x > 0)
+			{
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)CharMove, 2, 3, 4, (float)LEVEL_SKY);
+			}
+			else if (obj[i].getDirection().x < 0)
+			{
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)CharMove, 1, 3, 4, (float)LEVEL_SKY);
+			}
 			g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_OBJECTS_SIZE*0.8), pos.z, (float)MAX_OBJECTS_SIZE, 5, 0.f, 0.f, 1.f, 1.f, CharHealth, (float)LEVEL_GOD);
 		}
 	}

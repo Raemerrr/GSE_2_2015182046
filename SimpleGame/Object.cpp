@@ -58,6 +58,8 @@ void Object::setRGB(Data rgb)
 
 Data Object::getDirection()
 {
+	Direction.x = vX;
+	Direction.y = vY;
 	return Direction;
 }
 
@@ -149,7 +151,10 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 		if (Position.y < (-screenY)) {
 			vY = -vY;
 			vX = (float)(rand() % 2);
-		}
+		}/*if (Position.x > screenX || Position.x < (-screenX) || Position.y > screenY || Position.y < (-screenY))
+		{
+			objLife = (-1.f);
+		}*/
 	}
 	else if (OBJECT_TYPE == OBJECT_BULLET) {
 		Position.x = Position.x + vX * elapsedTime * objSpeed;	//이동구현
@@ -159,11 +164,13 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 		//Position.s = MAX_BULLET_SIZE;
 		if (Position.x > screenX || Position.x < (-screenX) || Position.y > screenY || Position.y < (-screenY))
 		{
-			vX = 0;
+			/*vX = 0;
 			vY = 0;
 			Position.s = -1.0f;
 			Position.x = 999.0f;
-			Position.y = 999.0f;
+			Position.y = 999.0f;*/
+			objLife = (-1.f);
+
 			//cout << "장소 이탈" << endl;
 		}
 
@@ -190,11 +197,13 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 		Position.y = Position.y + vY * elapsedTime * objSpeed;	//이동구현		
 		if (Position.x > screenX || Position.x < (-screenX) || Position.y > screenY || Position.y < (-screenY))
 		{
-			vX = 0;
+			/*vX = 0;
 			vY = 0;
 			Position.s = -1.0f;
 			Position.x = 999.0f;
-			Position.y = 999.0f;
+			Position.y = 999.0f;*/
+			objLife = (-1.f);
+
 			//cout << "장소 이탈" << endl;
 		}
 																

@@ -44,10 +44,11 @@ void SceneMgr::ObjectCreate(int Object_Type)
 		for (int i = (MAX_OBJECTS_COUNT / 2); i < MAX_OBJECTS_COUNT; ++i)
 		{
 			Data TEAM2CharColor = { 0.f,0.f, 255,255 };
-			Data TEAM2CharPos = { (MAX_SCREEN_WIDTH * 10),(MAX_SCEEN_HEIGHT / 2),0.f,-1.f };
+			Data TEAM2CharPos = { 0.f,0.f,0.f,-1.f };
+			//Data TEAM2CharPos = { (MAX_SCREEN_WIDTH * 10),(MAX_SCEEN_HEIGHT / 2),0.f,-1.f };
 			obj[i].setPosition(TEAM2CharPos);
 			obj[i].setTeamNum(2);
-			obj[i].fixedObjLife(MAX_OBJECTS_LIFE);
+			obj[i].fixedObjLife(-1.f);	//처음에 맵에 그려주지 않기위해서 -1.f죽음 처리함. 충돌 체크도 안할 것임.
 			obj[i].setRGB(TEAM2CharColor);
 			Data tempDirec = { 0.f ,0.f,0.f,0.f };
 			obj[i].setDirection(tempDirec);
@@ -84,7 +85,7 @@ void SceneMgr::ObjectCreate(int Object_Type)
 		{
 			Data temp = { (MAX_SCREEN_WIDTH * 10),MAX_SCEEN_HEIGHT,0.f,-1.f };
 			obj_BULLET[i].setPosition(temp);
-			obj_BULLET[i].fixedObjLife(MAX_BULLET_LIFE);
+			obj_BULLET[i].fixedObjLife(-1.f);
 		}
 	}
 	else if (Object_Type == OBJECT_ARROW)
@@ -94,7 +95,7 @@ void SceneMgr::ObjectCreate(int Object_Type)
 		{
 			Data temp = { MAX_SCREEN_WIDTH,(MAX_SCEEN_HEIGHT * 10),0.f,-1.f };
 			obj_ARROW[i].setPosition(temp);
-			obj_ARROW[i].fixedObjLife(MAX_ARROW_LIFE);
+			obj_ARROW[i].fixedObjLife(-1.f);
 		}
 	}
 }
@@ -154,12 +155,13 @@ void SceneMgr::RendererCreate() {
 	BackgroundImg = g_Renderer->CreatePngTexture("./Resource/Background.png");
 	Charater1Img = g_Renderer->CreatePngTexture("./Resource/Charac1.png");
 	Charater2Img = g_Renderer->CreatePngTexture("./Resource/Charac2.png");
-	BulletparticleImg = g_Renderer->CreatePngTexture("./Resource/Bulletparticle2.png"); 
+	BulletparticleImg = g_Renderer->CreatePngTexture("./Resource/Bulletparticle.png"); 
 }
 
 void SceneMgr::RendererDelete() {
 	delete g_Renderer;
 }
+
 void SceneMgr::Update(float updateTime)
 {
 	Data DeathPoint = { 999.f,999.f,999.f,-1.f };
@@ -170,7 +172,7 @@ void SceneMgr::Update(float updateTime)
 
 	for (int t = 0; t < MAX_OBJECTS_COUNT; ++t)
 	{
-		if (obj[t].getObjLife() <= 0.0)
+		if (obj[t].getObjLife() <= 0.0 && obj[t].getPosition().x != DeathPoint.x)	// obj[t].getPosition().x != DeathPoint.x : 이미 죽은자는 처리하지 않겠다.
 		{
 			obj[t].setPosition(DeathPoint);			//사이즈가 -1 이니 False 상태라 봄
 			obj[t].setDirection(DeathDirec);
@@ -183,16 +185,15 @@ void SceneMgr::Update(float updateTime)
 	}
 	for (int j = 0; j < MAX_BUILDING_COUNT; ++j)
 	{
-		if (obj_BUILDING[j].getObjLife() <= 0.f)//|| obj_BUILDING[i].getObjLifeTime() <= 0.f
+		if (obj_BUILDING[j].getObjLife() <= 0.f && obj_BUILDING[j].getPosition().x != DeathPoint.x)//|| obj_BUILDING[i].getObjLifeTime() <= 0.f
 		{
 			obj_BUILDING[j].setPosition(DeathPoint); //사이즈가 -1 이니 False 상태라 봄
 			obj_BUILDING[j].fixedObjLife(-1.f);
 		}
 	}
-
 	for (int q = 0; q < MAX_BULLET_COUNT; ++q)
 	{
-		if (obj_BULLET[q].getObjLife() <= 0.f)//|| obj_BUILDING[i].getObjLifeTime() <= 0.f
+		if (obj_BULLET[q].getObjLife() <= 0.f && obj_BULLET[q].getPosition().x != DeathPoint.x)//|| obj_BUILDING[i].getObjLifeTime() <= 0.f
 		{
 			obj_BULLET[q].setPosition(DeathPoint);
 			obj_BULLET[q].setDirection(DeathDirec);
@@ -205,7 +206,7 @@ void SceneMgr::Update(float updateTime)
 	}
 	for (int q = 0; q < MAX_ARROW_COUNT; ++q)
 	{
-		if (obj_ARROW[q].getObjLife() <= 0.f)//|| obj_BUILDING[i].getObjLifeTime() <= 0.f
+		if (obj_ARROW[q].getObjLife() <= 0.f && obj_ARROW[q].getPosition().x != DeathPoint.x)//|| obj_BUILDING[i].getObjLifeTime() <= 0.f
 		{
 			obj_ARROW[q].setPosition(DeathPoint);
 			obj_ARROW[q].setDirection(DeathDirec);
@@ -217,12 +218,9 @@ void SceneMgr::Update(float updateTime)
 		}
 	}
 }
+
 void SceneMgr::ObjectCollition1()
 {
-
-	Data DeathPoint = { 999.f,999.f,999.f,-1.f };
-	Data DeathDirec = { 0.f,0.f,0.f,0.f };
-
 	int obj_Character_Size = MAX_OBJECTS_SIZE / 2;
 	int obj_Building_Size = MAX_BUILDING_SIZE / 2;
 	int obj_Bullet_Size = MAX_BULLET_SIZE / 2;
@@ -271,18 +269,14 @@ void SceneMgr::ObjectCollition1()
 		//캐릭터 vs 캐릭터 미사일
 		for (int z = 0; z < MAX_ARROW_COUNT; ++z)
 		{
-			Data arrowRect2 = obj_ARROW[z].getPosition();
+			Data arrowRect = obj_ARROW[z].getPosition();
 			if (obj_ARROW[z].getObjLife() <= 0.f || obj_ARROW[z].getTeamNum() == obj[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
 			{
 				continue;
 			}
-			if (((charRect.x - obj_Character_Size) < (arrowRect2.x + obj_Arrow_Size) && (charRect.x + obj_Character_Size) > (arrowRect2.x - obj_Arrow_Size) && (charRect.y - obj_Character_Size) < (arrowRect2.y + obj_Arrow_Size) && (charRect.y + obj_Character_Size) > (arrowRect2.y - obj_Arrow_Size)))
+			if (((charRect.x - obj_Character_Size) < (arrowRect.x + obj_Arrow_Size) && (charRect.x + obj_Character_Size) > (arrowRect.x - obj_Arrow_Size) && (charRect.y - obj_Character_Size) < (arrowRect.y + obj_Arrow_Size) && (charRect.y + obj_Character_Size) > (arrowRect.y - obj_Arrow_Size)))
 			{
-				obj[i].setPosition(DeathPoint);
-				obj_ARROW[z].setPosition(DeathPoint);
-				obj[i].setDirection(DeathDirec);
-				obj_ARROW[z].setDirection(DeathDirec);
-				obj[i].setObjLife(-(obj[i].getObjLife()));
+				obj[i].setObjLife(-(obj_ARROW[z].getObjLife()));
 				obj_ARROW[z].fixedObjLife(-(obj_ARROW[z].getObjLife()));
 			}
 		}
@@ -303,6 +297,7 @@ void SceneMgr::ObjectCollition2()
 		}
 		Data buildRect = obj_BUILDING[i].getPosition();
 
+		//빌딩 vs 상대방 빌딩미사일
 		for (int q = 0; q < MAX_BULLET_COUNT; ++q)
 		{
 			if (obj_BULLET[q].getObjLife() <= 0.f || obj_BULLET[q].getTeamNum() == obj_BUILDING[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
@@ -312,22 +307,23 @@ void SceneMgr::ObjectCollition2()
 			Data bulletRect = obj_BULLET[q].getPosition();
 			if ((buildRect.x - obj_Building_Size) < (bulletRect.x + obj_Bullet_Size) && (buildRect.x + obj_Building_Size) > (bulletRect.x - obj_Bullet_Size) && (buildRect.y - obj_Building_Size) < (bulletRect.y + obj_Bullet_Size) && (buildRect.y + obj_Building_Size) > (bulletRect.y - obj_Bullet_Size))
 			{
-				obj_BUILDING[i].setObjLife(-30.f);
-				obj_BULLET[q].setObjLife((-10.f));
+				obj_BUILDING[i].setObjLife(-(obj_BULLET[q].getObjLife()));
+				obj_BULLET[q].setObjLife(-(obj_BULLET[q].getObjLife()));
 			}
 		}
 
+		//빌딩 vs 캐릭터 미사일
 		for (int z = 0; z < MAX_ARROW_COUNT; ++z)
 		{
-			Data arrowRect2 = obj_ARROW[z].getPosition();
+			Data arrowRect = obj_ARROW[z].getPosition();
 			if (obj_ARROW[z].getObjLife() <= 0.f || obj_ARROW[z].getTeamNum() == obj_BUILDING[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
 			{
 				continue;
 			}
-			if (((buildRect.x - obj_Building_Size) < (arrowRect2.x + obj_Arrow_Size) && (buildRect.x + obj_Building_Size) > (arrowRect2.x - obj_Arrow_Size) && (buildRect.y - obj_Building_Size) < (arrowRect2.y + obj_Arrow_Size) && (buildRect.y + obj_Building_Size) > (arrowRect2.y - obj_Arrow_Size)))
+			if (((buildRect.x - obj_Building_Size) < (arrowRect.x + obj_Arrow_Size) && (buildRect.x + obj_Building_Size) > (arrowRect.x - obj_Arrow_Size) && (buildRect.y - obj_Building_Size) < (arrowRect.y + obj_Arrow_Size) && (buildRect.y + obj_Building_Size) > (arrowRect.y - obj_Arrow_Size)))
 			{
-				obj_BUILDING[i].setObjLife(-50.f);
-				obj_ARROW[z].fixedObjLife(-1.f);
+				obj_BUILDING[i].setObjLife(-(obj_ARROW[z].getObjLife()));
+				obj_ARROW[z].setObjLife(-(obj_ARROW[z].getObjLife()));
 			}
 		}
 	}
@@ -348,6 +344,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			for (int j = 0; j < (MAX_OBJECTS_COUNT / 2); ++j)
 			{
 				if (obj[j].getObjLife() <= 0.f)
+				//if (obj[j].getPosition().s <= 0.f)
 				{
 					DrawObjCheck = AICharCount;
 					AICharCount = j;
@@ -460,7 +457,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			//int DrawBulCheck = 0;
 			Data pos = obj_BULLET[i].getPosition();
 			Data rgb = obj_BULLET[i].getRGB();
-			Data Direc = obj_BULLET[i].getDirection();
+			//Data Direc = obj_BULLET[i].getDirection();
 			/*for (int j = 0; j < MAX_BULLET_COUNT; ++j)
 			{
 				if (obj_BULLET[j].getObjLife() <= 0.0f)
@@ -470,7 +467,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					break;
 				}
 			}*/
-			g_Renderer->DrawParticle(pos.x, pos.y, pos.z, pos.s, 1, 1, 1, 1, 0, -(Direc.y), BulletparticleImg, ParticleTime);
+			g_Renderer->DrawParticle(pos.x, pos.y, pos.z, pos.s, 1, 1, 1, 1, 0, -(obj_BULLET[i].getDirection().y), BulletparticleImg, ParticleTime);
 			if (timeSet > 1000)
 			{
 				
@@ -482,17 +479,13 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					}
 					Data tempPos = { obj_BUILDING[t].getPosition().x,obj_BUILDING[t].getPosition().y,obj_BUILDING[t].getPosition().z,MAX_BULLET_SIZE };
 					obj_BULLET[bulletCount].setPosition(tempPos);
-					float checkX = 1;
+					//float checkX = 1;
 					float checkY = 1;
-
 					if (rand() % 2 == 1)
-					{
-						checkX *= -1;
-					}if (rand() % 2 == 1)
 					{
 						checkY *= -1;
 					}
-					Data tempDirec = { checkX ,checkY,0.f,0.f };
+					Data tempDirec = { (rand()%3)-1 ,checkY,0.f,0.f };	//tempDirec.x 의 값은 -1,0,1중 나올 수있도록 구현 tempDirec.y는 -1,1만 나오도록 구현
 					obj_BULLET[bulletCount].setDirection(tempDirec);
 					obj_BULLET[bulletCount].fixedObjLife(MAX_BULLET_LIFE);
 					if (t < (MAX_BUILDING_COUNT / 2))

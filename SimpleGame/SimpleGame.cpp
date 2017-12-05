@@ -126,7 +126,7 @@ void MouseInput(int button, int state, int x, int y)
 				}
 				Data temp2 = { checkX,checkY,0.0f,0.0f };
 				SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setDirection(temp2);
-				SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->setObjLife(100.f);
+				SceneManager->getObject(CheckObjectCount, OBJECT_CHARACTER)->fixedObjLife(MAX_OBJECTS_LIFE);
 			}
 			if (DrawObjCheck != 0)
 			{

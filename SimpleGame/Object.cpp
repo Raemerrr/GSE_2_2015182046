@@ -116,8 +116,8 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 	}
 	else if (OBJECT_TYPE == OBJECT_BULLET)
 	{
-		objSpeed = 600.f; 
-		//objSpeed = 100.f; 가장 이상적인 속도
+		//objSpeed = 600.f; 
+		objSpeed = 100.f; //가장 이상적인 속도
 	}
 	else if (OBJECT_TYPE == OBJECT_ARROW)
 	{
@@ -125,7 +125,6 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 	}
 
 	elapsedTime = elapsedTime / 1000.f;
-	//cout << bulletSpawnTime << endl; 
 
 	//캐릭터 라이프타임 잠시 주석처리
 	/*if (!(lifeTime <= 0.0f) && OBJECT_TYPE == OBJECT_CHARACTER)
@@ -152,10 +151,17 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 		if (Position.y < (-screenY)) {
 			vY = -vY;
 			vX = (float)(rand() % 2);
-		}/*if (Position.x > screenX || Position.x < (-screenX) || Position.y > screenY || Position.y < (-screenY))
+		}
+		//살아있는 객체가 예상치못한 비비기로 인한 게임 구역 밖을 벗어났을 시에 관한 체크. 죽음처리 후 재생성
+		if (((Position.x < (-screenX) && Position.y > screenY) || (Position.x < (-screenX) && Position.y < (-screenY))) && objLife > 0.f)
 		{
+			cout << "왼 벽으로 넘어감" << endl;
 			objLife = (-1.f);
-		}*/
+		}if (((Position.x > screenX && Position.y > screenY) || (Position.x > screenX && Position.y < (-screenY))) && objLife > 0.f)
+		{
+			cout << "오른 벽으로 넘어감" << endl;
+			objLife = (-1.f);
+		}
 	}
 	else if (OBJECT_TYPE == OBJECT_BULLET) {
 		Position.x = Position.x + vX * elapsedTime * objSpeed;	//이동구현
@@ -171,7 +177,6 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 			Position.x = 999.0f;
 			Position.y = 999.0f;*/
 			objLife = (-1.f);
-
 			//cout << "장소 이탈" << endl;
 		}
 

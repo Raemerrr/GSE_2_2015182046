@@ -103,7 +103,7 @@ void MouseInput(int button, int state, int x, int y)
 	}
 	if (button == GLUT_LEFT_BUTTON && state == GLUT_UP)
 	{
-		if (g_LButtonDown)// && CharSpawnTime > 2000)
+		if (g_LButtonDown && CharSpawnTime > 2000)
 		{
 			//clicked
 			//범위 체크

@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "Object.h"
 #include "Renderer.h"
+#include "Sound.h"
 
 class SceneMgr
 {
@@ -10,6 +11,7 @@ private:
 	float vY;
 	float CharMove;
 	float ParticleTime;
+	float screenEffect;
 	Object* obj;
 	Renderer* g_Renderer;
 	Object* obj_BUILDING;
@@ -24,6 +26,12 @@ private:
 	GLuint Charater1Img;
 	GLuint Charater2Img;
 	GLuint BulletparticleImg;
+	int teamBulingCount1;
+	int teamBulingCount2;
+	Sound* soundManager;
+	int BackSound;
+	int BulletSound;
+	int BuildingSound;
 public:
 	SceneMgr();
 	~SceneMgr();

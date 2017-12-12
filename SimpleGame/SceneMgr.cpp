@@ -15,6 +15,8 @@ SceneMgr::SceneMgr()
 	AICharCount = 0;
 	CharMove = 0.f;
 	ParticleTime = 0.f;
+	teamBulingCount1 = 3;
+	teamBulingCount2 = 3;
 }
 
 SceneMgr::~SceneMgr()
@@ -156,6 +158,12 @@ void SceneMgr::RendererCreate() {
 	Charater1Img = g_Renderer->CreatePngTexture("./Resource/Charac1.png");
 	Charater2Img = g_Renderer->CreatePngTexture("./Resource/Charac2.png");
 	BulletparticleImg = g_Renderer->CreatePngTexture("./Resource/Bulletparticle.png"); 
+	soundManager = new Sound();
+	BackSound = soundManager->CreateSound("./Resource/Sand_Castles.mp3");
+	BulletSound = soundManager->CreateSound("./Resource/Bullet_Sound.wav");
+	BuildingSound = soundManager->CreateSound("./Resource/Building_Bomb.wav");
+	
+	soundManager->PlaySound(BackSound, true, 0.2f);
 }
 
 void SceneMgr::RendererDelete() {
@@ -166,7 +174,7 @@ void SceneMgr::Update(float updateTime)
 {
 	Data DeathPoint = { 999.f,999.f,999.f,-1.f };
 	Data DeathDirec = { 0.f,0.f,0.f,0.f };
-
+	screenEffect += (updateTime*0.0005);
 	CharMove += (updateTime*0.17);
 	ParticleTime += (updateTime*0.0005);
 
@@ -183,12 +191,37 @@ void SceneMgr::Update(float updateTime)
 			obj[t].Update((float)updateTime, OBJECT_CHARACTER);
 		}
 	}
-	for (int j = 0; j < MAX_BUILDING_COUNT; ++j)
+	for (int j = 0; j < MAX_BUILDING_COUNT/2; ++j)
 	{
 		if (obj_BUILDING[j].getObjLife() <= 0.f && obj_BUILDING[j].getPosition().x != DeathPoint.x)//|| obj_BUILDING[i].getObjLifeTime() <= 0.f
 		{
 			obj_BUILDING[j].setPosition(DeathPoint); //사이즈가 -1 이니 False 상태라 봄
 			obj_BUILDING[j].fixedObjLife(-1.f);
+			teamBulingCount1--;
+			soundManager->PlaySound(BuildingSound, false, 0.2f);
+
+		}
+		if (obj_BUILDING[0].getObjLife() <= 0.f &&obj_BUILDING[1].getObjLife() <= 0.f &&obj_BUILDING[2].getObjLife() <= 0.f)
+		{
+			g_Renderer->SetSceneTransform(0.5, 0.5, 12.2f, 12.2f);
+		}
+		//else
+		//{
+			//g_Renderer->SetSceneTransform(1, 1, 1.f, 1.f);
+		//}
+	}
+	for (int j = MAX_BUILDING_COUNT/2; j < MAX_BUILDING_COUNT; ++j)
+	{
+		if (obj_BUILDING[j].getObjLife() <= 0.f && obj_BUILDING[j].getPosition().x != DeathPoint.x)//|| obj_BUILDING[i].getObjLifeTime() <= 0.f
+		{
+			obj_BUILDING[j].setPosition(DeathPoint); //사이즈가 -1 이니 False 상태라 봄
+			obj_BUILDING[j].fixedObjLife(-1.f);
+			teamBulingCount2--;
+			soundManager->PlaySound(BuildingSound, false, 0.2f);
+		}
+		if (obj_BUILDING[3].getObjLife() <= 0.f &&obj_BUILDING[4].getObjLife() <= 0.f &&obj_BUILDING[5].getObjLife() <= 0.f)
+		{
+			g_Renderer->SetSceneTransform(0.5, 0.5, 12.2f, 12.2f);
 		}
 	}
 	for (int q = 0; q < MAX_BULLET_COUNT; ++q)
@@ -331,8 +364,9 @@ void SceneMgr::ObjectCollition2()
 }
 
 void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
-	g_Renderer->DrawTexturedRect(0, 0, 0, MAX_SCREEN_WIDTH, 1.f, 1.f, 1.f, 1.f, BackgroundImg, LEVEL_UNDERGROUND);
-
+	g_Renderer->DrawText(-30.5f, 380.0f, GLUT_BITMAP_HELVETICA_12, 0.0f, 0.0f, 1.0f, "TEAM 1");
+	g_Renderer->DrawText(-30.5f, -380.0f, GLUT_BITMAP_HELVETICA_12, 1.0f, 0.0f, 0.0f, "TEAM 2");
+	g_Renderer->DrawTexturedRect(0, 0, 0, MAX_SCREEN_WIDTH, 1.f, 1.f, 1.f, 0.1f, BackgroundImg, LEVEL_UNDERGROUND);
 	if (Object_Type == OBJECT_CHARACTER)
 	{
 		for (int i = 0; i < (MAX_OBJECTS_COUNT / 2); ++i)			//team1 Character 그리기
@@ -470,7 +504,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			g_Renderer->DrawParticle(pos.x, pos.y, pos.z, pos.s, 1, 1, 1, 1, 0, -(obj_BULLET[i].getDirection().y), BulletparticleImg, ParticleTime);
 			if (timeSet > 1000)
 			{
-				
+
 				for (int t = 0; t < MAX_BUILDING_COUNT; ++t)
 				{
 					if (obj_BUILDING[t].getObjLife() <= 0.f || obj_BULLET[bulletCount].getPosition().s == MAX_BULLET_SIZE)
@@ -500,6 +534,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 						obj_BULLET[bulletCount].setTeamNum(2);
 						obj_BULLET[bulletCount].setRGB(Team2BulletColor);
 					}
+					soundManager->PlaySound(BulletSound, false, 0.01f);
 					bulletCount++;
 					if (bulletCount >= MAX_BULLET_COUNT)
 					{

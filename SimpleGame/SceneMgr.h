@@ -7,11 +7,9 @@
 class SceneMgr
 {
 private:
+	float ParticleClimateTime;
 	float vX;
 	float vY;
-	float CharMove;
-	float ParticleTime;
-	float screenEffect;
 	Object* obj;
 	Renderer* g_Renderer;
 	Object* obj_BUILDING;

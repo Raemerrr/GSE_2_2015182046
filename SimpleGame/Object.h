@@ -18,11 +18,12 @@ private:
 	float objLife;
 	float lifeTime;
 	int teamNum;
-	
+	float timer;
 public:
 	Object();
 	~Object();
-
+	float getTimer();
+	void setTimer(float num);
 	Data getPosition();
 	void setPosition(Data p);
 	Data getRGB();

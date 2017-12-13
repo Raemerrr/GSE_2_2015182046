@@ -13,10 +13,9 @@ SceneMgr::SceneMgr()
 	bulletCount = 0;
 	arrowCount = 0;
 	AICharCount = 0;
-	CharMove = 0.f;
-	ParticleTime = 0.f;
 	teamBulingCount1 = 3;
 	teamBulingCount2 = 3;
+	ParticleClimateTime = 0.f;
 }
 
 SceneMgr::~SceneMgr()
@@ -174,10 +173,7 @@ void SceneMgr::Update(float updateTime)
 {
 	Data DeathPoint = { 999.f,999.f,999.f,-1.f };
 	Data DeathDirec = { 0.f,0.f,0.f,0.f };
-	screenEffect += (updateTime*0.0005);
-	CharMove += (updateTime*0.17);
-	ParticleTime += (updateTime*0.0005);
-
+	ParticleClimateTime += (updateTime*0.005);
 	for (int t = 0; t < MAX_OBJECTS_COUNT; ++t)
 	{
 		if (obj[t].getObjLife() <= 0.0 && obj[t].getPosition().x != DeathPoint.x)	// obj[t].getPosition().x != DeathPoint.x : 이미 죽은자는 처리하지 않겠다.
@@ -201,14 +197,17 @@ void SceneMgr::Update(float updateTime)
 			soundManager->PlaySound(BuildingSound, false, 0.2f);
 
 		}
+		/*	//흔들리는 효과 제거
 		if (obj_BUILDING[0].getObjLife() <= 0.f &&obj_BUILDING[1].getObjLife() <= 0.f &&obj_BUILDING[2].getObjLife() <= 0.f)
 		{
-			g_Renderer->SetSceneTransform(0.5, 0.5, 12.2f, 12.2f);
+			screenEffect = 0.f;
+			g_Renderer->SetSceneTransform(screenEffect, screenEffect, 12.2f, 12.2f);
 		}
-		//else
-		//{
+		else
+		{
 			//g_Renderer->SetSceneTransform(1, 1, 1.f, 1.f);
-		//}
+		}
+		*/
 	}
 	for (int j = MAX_BUILDING_COUNT/2; j < MAX_BUILDING_COUNT; ++j)
 	{
@@ -219,10 +218,12 @@ void SceneMgr::Update(float updateTime)
 			teamBulingCount2--;
 			soundManager->PlaySound(BuildingSound, false, 0.2f);
 		}
+		/*
 		if (obj_BUILDING[3].getObjLife() <= 0.f &&obj_BUILDING[4].getObjLife() <= 0.f &&obj_BUILDING[5].getObjLife() <= 0.f)
 		{
-			g_Renderer->SetSceneTransform(0.5, 0.5, 12.2f, 12.2f);
+			g_Renderer->SetSceneTransform(0.0, 0.0, 12.2f, 12.2f);
 		}
+		*/
 	}
 	for (int q = 0; q < MAX_BULLET_COUNT; ++q)
 	{
@@ -367,6 +368,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 	g_Renderer->DrawText(-30.5f, 380.0f, GLUT_BITMAP_HELVETICA_12, 0.0f, 0.0f, 1.0f, "TEAM 1");
 	g_Renderer->DrawText(-30.5f, -380.0f, GLUT_BITMAP_HELVETICA_12, 1.0f, 0.0f, 0.0f, "TEAM 2");
 	g_Renderer->DrawTexturedRect(0, 0, 0, MAX_SCREEN_WIDTH, 1.f, 1.f, 1.f, 0.1f, BackgroundImg, LEVEL_UNDERGROUND);
+	g_Renderer->DrawParticleClimate(0.0f, 0.0f, 0.0f, 1.5f, 1.0f, 1.0f, 1.0f, 0.1f, 1.0, 1.0, BulletparticleImg, ParticleClimateTime, LEVEL_SKY);
 	if (Object_Type == OBJECT_CHARACTER)
 	{
 		for (int i = 0; i < (MAX_OBJECTS_COUNT / 2); ++i)			//team1 Character 그리기
@@ -377,8 +379,8 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			float CharHealth = obj[i].getObjLife() / MAX_OBJECTS_LIFE;
 			for (int j = 0; j < (MAX_OBJECTS_COUNT / 2); ++j)
 			{
-				if (obj[j].getObjLife() <= 0.f)
 				//if (obj[j].getPosition().s <= 0.f)
+				if (obj[j].getObjLife() <= 0.f)
 				{
 					DrawObjCheck = AICharCount;
 					AICharCount = j;
@@ -387,19 +389,19 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			}
 			if (obj[i].getDirection().y < 0.f && obj[i].getDirection().x == 0)
 			{
-				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)CharMove, 0, 3, 4, (float)LEVEL_SKY);
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)obj[i].getTimer(), 0, 3, 4, (float)LEVEL_SKY);
 			}
 			else if (obj[i].getDirection().y > 0.f && obj[i].getDirection().x == 0)
 			{
-				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)CharMove, 3, 3, 4, (float)LEVEL_SKY);
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)obj[i].getTimer(), 3, 3, 4, (float)LEVEL_SKY);
 			}
 			else if (obj[i].getDirection().x > 0)
 			{
-				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)CharMove, 2, 3, 4, (float)LEVEL_SKY);
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)obj[i].getTimer(), 2, 3, 4, (float)LEVEL_SKY);
 			}
 			else if (obj[i].getDirection().x < 0)
 			{
-				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)CharMove, 1, 3, 4, (float)LEVEL_SKY);
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)obj[i].getTimer(), 1, 3, 4, (float)LEVEL_SKY);
 			}
 			g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_OBJECTS_SIZE *0.8), pos.z, (float)MAX_OBJECTS_SIZE, 5, 1.f, 0.f, 0.f, 1.f, CharHealth, (float)LEVEL_GOD);
 
@@ -442,19 +444,19 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			Data rgb = obj[i].getRGB();
 			if (obj[i].getDirection().y < 0.f && obj[i].getDirection().x == 0)
 			{
-				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)CharMove, 0, 3, 4, (float)LEVEL_SKY);
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)obj[i].getTimer(), 0, 3, 4, (float)LEVEL_SKY);
 			}
 			else if (obj[i].getDirection().y > 0.f && obj[i].getDirection().x == 0)
 			{
-				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)CharMove, 3, 3, 4, (float)LEVEL_SKY);
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)obj[i].getTimer(), 3, 3, 4, (float)LEVEL_SKY);
 			}
 			else if (obj[i].getDirection().x > 0)
 			{
-				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)CharMove, 2, 3, 4, (float)LEVEL_SKY);
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)obj[i].getTimer(), 2, 3, 4, (float)LEVEL_SKY);
 			}
 			else if (obj[i].getDirection().x < 0)
 			{
-				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)CharMove, 1, 3, 4, (float)LEVEL_SKY);
+				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)obj[i].getTimer(), 1, 3, 4, (float)LEVEL_SKY);
 			}
 			g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_OBJECTS_SIZE*0.8), pos.z, (float)MAX_OBJECTS_SIZE, 5, 0.f, 0.f, 1.f, 1.f, CharHealth, (float)LEVEL_GOD);
 		}
@@ -501,10 +503,9 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					break;
 				}
 			}*/
-			g_Renderer->DrawParticle(pos.x, pos.y, pos.z, pos.s, 1, 1, 1, 1, 0, -(obj_BULLET[i].getDirection().y), BulletparticleImg, ParticleTime);
+			g_Renderer->DrawParticle(pos.x, pos.y, pos.z, pos.s, 1, 1, 1, 1, -(obj_BULLET[i].getDirection().x), -(obj_BULLET[i].getDirection().y), BulletparticleImg, obj_BULLET[i].getTimer(), LEVEL_GROUND);
 			if (timeSet > 1000)
 			{
-
 				for (int t = 0; t < MAX_BUILDING_COUNT; ++t)
 				{
 					if (obj_BUILDING[t].getObjLife() <= 0.f || obj_BULLET[bulletCount].getPosition().s == MAX_BULLET_SIZE)
@@ -519,8 +520,9 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					{
 						checkY *= -1;
 					}
-					Data tempDirec = { (rand()%3)-1 ,checkY,0.f,0.f };	//tempDirec.x 의 값은 -1,0,1중 나올 수있도록 구현 tempDirec.y는 -1,1만 나오도록 구현
+					Data tempDirec = { (float)(rand()%3)-1 ,checkY,0.f,0.f };	//tempDirec.x 의 값은 -1,0,1중 나올 수있도록 구현 tempDirec.y는 -1,1만 나오도록 구현
 					obj_BULLET[bulletCount].setDirection(tempDirec);
+					obj_BULLET[bulletCount].setTimer(0.f);
 					obj_BULLET[bulletCount].fixedObjLife(MAX_BULLET_LIFE);
 					if (t < (MAX_BUILDING_COUNT / 2))
 					{

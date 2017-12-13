@@ -24,6 +24,17 @@ Object::Object()
 	Direction.s = 0.f;//삭제 유무
 	objLife = 0.f; //라이프
 	lifeTime = 1000.f; //라이프
+	timer = 0.f;
+}
+
+float Object::getTimer()
+{
+	return timer;
+}
+
+void Object::setTimer(float num)
+{
+	timer = num;
 }
 
 Object::~Object()
@@ -106,22 +117,29 @@ void Object::setTeamNum(int a)
 
 void Object::Update(float elapsedTime, int OBJECT_TYPE)
 {
+
 	int screenX = MAX_SCREEN_WIDTH / 2;
 	int screenY = MAX_SCEEN_HEIGHT / 2;
 
 	float objSpeed = 0.0f;
 	if (OBJECT_TYPE == OBJECT_CHARACTER)
 	{
+		timer += (elapsedTime*0.17);
 		objSpeed = 300.f;
 	}
 	else if (OBJECT_TYPE == OBJECT_BULLET)
 	{
+		timer += (elapsedTime*0.0005);
 		//objSpeed = 600.f; 
 		objSpeed = 100.f; //가장 이상적인 속도
 	}
 	else if (OBJECT_TYPE == OBJECT_ARROW)
 	{
 		objSpeed = 100.f;
+	}
+	else if (OBJECT_TYPE == OBJECT_BUILDING)
+	{
+		timer += (elapsedTime*0.0005);
 	}
 
 	elapsedTime = elapsedTime / 1000.f;

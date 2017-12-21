@@ -22,6 +22,7 @@ int DrawObjCheck = 0; //그려져있는지 체크
 //오브젝트 리스폰 관리
 float CharSpawnTime = 0;
 float AICharSpawnTime = 0;
+float AISkyCharSpawnTime = 0;
 float BuildSpawnTime = 0;	//유일하게 아직 사용하지 않는 함수
 float BulleltSpawnTime = 0;
 float ArrowSpawnTime = 0;
@@ -44,6 +45,9 @@ void RenderScene(void)
 	CharSpawnTime += (float)updateTime;
 	AICharSpawnTime += (float)updateTime;
 	SceneManager->ObjectDraw(OBJECT_CHARACTER, AICharSpawnTime);
+
+	AISkyCharSpawnTime += (float)updateTime;
+	SceneManager->ObjectDraw(OBJECT_SKYCHARACTER, AISkyCharSpawnTime);
 
 	SceneManager->ObjectDraw(OBJECT_BUILDING, BuildSpawnTime);
 
@@ -176,7 +180,7 @@ int main(int argc, char **argv)
 
 	SceneManager->RendererCreate();
 
-	for (int i = 1; i <= 4; ++i) // ARROW 추가되면 4까지
+	for (int i = 1; i <= 5; ++i) // ARROW 추가되면 4까지
 	{
 		SceneManager->ObjectCreate(i);
 	}

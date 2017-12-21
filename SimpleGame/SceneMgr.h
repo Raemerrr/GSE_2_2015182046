@@ -10,6 +10,7 @@ private:
 	float ParticleClimateTime;
 	float vX;
 	float vY;
+	Object* skyObj;
 	Object* obj;
 	Renderer* g_Renderer;
 	Object* obj_BUILDING;
@@ -18,11 +19,14 @@ private:
 	int bulletCount;
 	int arrowCount;
 	int AICharCount;
+	int SkyAiCharCount;
 	GLuint team1BulidingImg;
 	GLuint team2BulidingImg;
 	GLuint BackgroundImg;
 	GLuint Charater1Img;
 	GLuint Charater2Img;
+	GLuint SkyCharater1Img;
+	GLuint SkyCharater2Img;
 	GLuint BulletparticleImg;
 	int teamBulingCount1;
 	int teamBulingCount2;
@@ -30,6 +34,7 @@ private:
 	int BackSound;
 	int BulletSound;
 	int BuildingSound;
+	int skyCharDeathSound;
 public:
 	SceneMgr();
 	~SceneMgr();

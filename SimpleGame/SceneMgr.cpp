@@ -10,9 +10,11 @@ SceneMgr::SceneMgr()
 	obj_BULLET = NULL;
 	obj_ARROW = NULL;
 	g_Renderer = NULL;
+	skyObj = NULL;
 	bulletCount = 0;
 	arrowCount = 0;
 	AICharCount = 0;
+	SkyAiCharCount = 0;
 	teamBulingCount1 = 3;
 	teamBulingCount2 = 3;
 	ParticleClimateTime = 0.f;
@@ -20,7 +22,7 @@ SceneMgr::SceneMgr()
 
 SceneMgr::~SceneMgr()
 {
-	for (int i = 1; i < 5; ++i) // ARROW 추가되면 4까지
+	for (int i = 1; i <= 5; ++i)
 	{
 		ObjectAllDelete(i);
 	}
@@ -53,6 +55,48 @@ void SceneMgr::ObjectCreate(int Object_Type)
 			obj[i].setRGB(TEAM2CharColor);
 			Data tempDirec = { 0.f ,0.f,0.f,0.f };
 			obj[i].setDirection(tempDirec);
+		}
+	}
+	else if (Object_Type == OBJECT_SKYCHARACTER)
+	{
+		/*
+		Data tempDirec = { 0.f ,0.f,0.f,0.f };
+		skyObj = new Object[MAX_SKYOBJECTS_COUNT]();
+		for (int i = 0; i < (MAX_SKYOBJECTS_COUNT / 2); ++i)
+		{
+			Data TEAM1CharColor = { 255.0f,0.0f,0.0f,255.0f };
+			Data TEAM1CharPos = { 0.f,0.f,0.f,-1.f };
+			skyObj[i].setPosition(TEAM1CharPos);
+			skyObj[i].setTeamNum(1);
+			//obj[i].setObjLifeTime(100000.f);
+			skyObj[i].fixedObjLife(-1.f);		//처음에 맵에 그려주지 않기위해서 -1.f죽음 처리함.
+			skyObj[i].setRGB(TEAM1CharColor);
+			skyObj[i].setDirection(tempDirec);
+		}
+		for (int i = (MAX_OBJECTS_COUNT / 2); i < MAX_SKYOBJECTS_COUNT; ++i)
+		{
+			Data TEAM2CharColor = { 0.f,0.f, 255,255 };
+			Data TEAM2CharPos = { 0.f,0.f,0.f,-1.f };
+			skyObj[i].setPosition(TEAM2CharPos);
+			skyObj[i].setTeamNum(2);
+			skyObj[i].fixedObjLife(-1.f);	//처음에 맵에 그려주지 않기위해서 -1.f죽음 처리함. 충돌 체크도 안할 것임.
+			skyObj[i].setRGB(TEAM2CharColor);
+			skyObj[i].setDirection(tempDirec);
+		}
+		*/
+		Data defaultPoint = { 0.f,0.f,0.f,-1.f };
+		skyObj = new Object[MAX_SKYOBJECTS_COUNT]();
+		for (int i = 0; i < (MAX_SKYOBJECTS_COUNT / 2); ++i)	//공중 유닛 초기화
+		{
+			skyObj[i].setPosition(defaultPoint);
+			skyObj[i].fixedObjLife(-1.f);
+			skyObj[i].setTeamNum(1);
+		}
+		for (int i = (MAX_SKYOBJECTS_COUNT / 2); i < MAX_SKYOBJECTS_COUNT; ++i)	//공중 유닛 초기화
+		{
+			skyObj[i].setPosition(defaultPoint);
+			skyObj[i].fixedObjLife(-1.f);
+			skyObj[i].setTeamNum(2);
 		}
 	}
 	else if (Object_Type == OBJECT_BUILDING)
@@ -119,6 +163,10 @@ void SceneMgr::ObjectAllDelete(int Object_Type)
 	{
 		delete[] obj_ARROW;
 	}
+	else
+	{
+		delete[] skyObj;
+	}
 }
 
 Object* SceneMgr::getObject(int i, int Object_Type)
@@ -135,9 +183,13 @@ Object* SceneMgr::getObject(int i, int Object_Type)
 	{
 		return &obj_BULLET[i];
 	}
-	else// if (Object_Type == OBJECT_ARROW)
+	else if (Object_Type == OBJECT_ARROW)
 	{
 		return &obj_ARROW[i];
+	}
+	else
+	{
+		return &skyObj[i];
 	}
 }
 
@@ -156,12 +208,15 @@ void SceneMgr::RendererCreate() {
 	BackgroundImg = g_Renderer->CreatePngTexture("./Resource/Background.png");
 	Charater1Img = g_Renderer->CreatePngTexture("./Resource/Charac1.png");
 	Charater2Img = g_Renderer->CreatePngTexture("./Resource/Charac2.png");
-	BulletparticleImg = g_Renderer->CreatePngTexture("./Resource/Bulletparticle.png"); 
+	SkyCharater1Img = g_Renderer->CreatePngTexture("./Resource/SkyCharac1.png");
+	SkyCharater2Img = g_Renderer->CreatePngTexture("./Resource/SkyCharac2.png");
+	BulletparticleImg = g_Renderer->CreatePngTexture("./Resource/Bulletparticle.png");
 	soundManager = new Sound();
 	BackSound = soundManager->CreateSound("./Resource/Sand_Castles.mp3");
 	BulletSound = soundManager->CreateSound("./Resource/Bullet_Sound.wav");
 	BuildingSound = soundManager->CreateSound("./Resource/Building_Bomb.wav");
-	
+	skyCharDeathSound = soundManager->CreateSound("./Resource/skyCharDeath.wav");
+
 	soundManager->PlaySound(BackSound, true, 0.2f);
 }
 
@@ -187,7 +242,23 @@ void SceneMgr::Update(float updateTime)
 			obj[t].Update((float)updateTime, OBJECT_CHARACTER);
 		}
 	}
-	for (int j = 0; j < MAX_BUILDING_COUNT/2; ++j)
+
+	for (int t = 0; t < MAX_SKYOBJECTS_COUNT; ++t)
+	{
+		if (skyObj[t].getObjLife() <= 0.0 && skyObj[t].getPosition().s == MAX_SKYOBJECTS_SIZE)
+		{
+			soundManager->PlaySound(skyCharDeathSound, false, 0.2f);
+			skyObj[t].setPosition(DeathPoint);			//사이즈가 -1 이니 False 상태라 봄
+			skyObj[t].setDirection(DeathDirec);
+			skyObj[t].fixedObjLife(-1.f);				//-1로 라이프를 설정하면 충돌체크, 재발사 등 동작 하지 않음.
+		}
+		else
+		{
+			skyObj[t].Update((float)updateTime, OBJECT_SKYCHARACTER);
+		}
+	}
+
+	for (int j = 0; j < MAX_BUILDING_COUNT / 2; ++j)
 	{
 		if (obj_BUILDING[j].getObjLife() <= 0.f && obj_BUILDING[j].getPosition().x != DeathPoint.x)//|| obj_BUILDING[i].getObjLifeTime() <= 0.f
 		{
@@ -209,7 +280,7 @@ void SceneMgr::Update(float updateTime)
 		}
 		*/
 	}
-	for (int j = MAX_BUILDING_COUNT/2; j < MAX_BUILDING_COUNT; ++j)
+	for (int j = MAX_BUILDING_COUNT / 2; j < MAX_BUILDING_COUNT; ++j)
 	{
 		if (obj_BUILDING[j].getObjLife() <= 0.f && obj_BUILDING[j].getPosition().x != DeathPoint.x)//|| obj_BUILDING[i].getObjLifeTime() <= 0.f
 		{
@@ -259,6 +330,7 @@ void SceneMgr::ObjectCollition1()
 	int obj_Building_Size = MAX_BUILDING_SIZE / 2;
 	int obj_Bullet_Size = MAX_BULLET_SIZE / 2;
 	int obj_Arrow_Size = MAX_ARROW_SIZE / 2;
+	int obj_SkyChar_Size = MAX_SKYOBJECTS_SIZE / 2;
 
 
 	for (int i = 0; i < MAX_OBJECTS_COUNT; ++i)
@@ -281,6 +353,22 @@ void SceneMgr::ObjectCollition1()
 			{
 				//cout << j << " 빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
 				obj_BUILDING[j].setObjLife(-(obj[i].getObjLife()));
+				obj[i].setObjLife(-(obj[i].getObjLife()));
+			}
+		}
+
+		//캐릭터 vs 공중 케릭
+		for (int j = 0; j < MAX_BUILDING_COUNT; ++j)
+		{
+			if (skyObj[j].getObjLife() <= 0.f || skyObj[j].getTeamNum() == obj[i].getTeamNum())	//이미 0.0f는 죽은 처리기 때문에 충돌 체크를 하지 않는다.
+			{
+				continue;
+			}
+			Data skyCharRect = skyObj[j].getPosition();
+			if (((charRect.x - obj_Character_Size) < (skyCharRect.x + obj_Building_Size) && (charRect.x + obj_Character_Size) > (skyCharRect.x - obj_Building_Size) && (charRect.y - obj_Character_Size) < (skyCharRect.y + obj_Building_Size) && (charRect.y + obj_Character_Size) > (skyCharRect.y - obj_Building_Size)))
+			{
+				//cout << j << " 빌딩의 체력 : " << obj_BUILDING[j].getObjLife() << endl;
+				skyObj[j].setObjLife(-(obj[i].getObjLife()));
 				obj[i].setObjLife(-(obj[i].getObjLife()));
 			}
 		}
@@ -367,7 +455,7 @@ void SceneMgr::ObjectCollition2()
 void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 	g_Renderer->DrawText(-30.5f, 380.0f, GLUT_BITMAP_HELVETICA_12, 0.0f, 0.0f, 1.0f, "TEAM 1");
 	g_Renderer->DrawText(-30.5f, -380.0f, GLUT_BITMAP_HELVETICA_12, 1.0f, 0.0f, 0.0f, "TEAM 2");
-	g_Renderer->DrawTexturedRect(0, 0, 0, MAX_SCREEN_WIDTH, 1.f, 1.f, 1.f, 0.1f, BackgroundImg, LEVEL_UNDERGROUND);
+	g_Renderer->DrawTexturedRect(0.f, 0.f, 0.f, (float)MAX_SCREEN_WIDTH, 1.f, 1.f, 1.f, 0.1f, BackgroundImg, LEVEL_UNDERGROUND);
 	g_Renderer->DrawParticleClimate(0.0f, 0.0f, 0.0f, 1.5f, 1.0f, 1.0f, 1.0f, 0.1f, 1.0, 1.0, BulletparticleImg, ParticleClimateTime, LEVEL_SKY);
 	if (Object_Type == OBJECT_CHARACTER)
 	{
@@ -403,8 +491,9 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			{
 				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater1Img, (int)obj[i].getTimer(), 1, 3, 4, (float)LEVEL_SKY);
 			}
-			g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_OBJECTS_SIZE *0.8), pos.z, (float)MAX_OBJECTS_SIZE, 5, 1.f, 0.f, 0.f, 1.f, CharHealth, (float)LEVEL_GOD);
-
+			if (obj[i].getObjLife() > 0.f) {
+				g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_OBJECTS_SIZE *0.8), pos.z, (float)MAX_OBJECTS_SIZE, 5, 1.f, 0.f, 0.f, 1.f, CharHealth, (float)LEVEL_GOD);
+			}
 			if (timeSet > 1000)
 			{
 				if (obj[AICharCount].getPosition().s == MAX_OBJECTS_SIZE)
@@ -458,8 +547,97 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			{
 				g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, Charater2Img, (int)obj[i].getTimer(), 1, 3, 4, (float)LEVEL_SKY);
 			}
-			g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_OBJECTS_SIZE*0.8), pos.z, (float)MAX_OBJECTS_SIZE, 5, 0.f, 0.f, 1.f, 1.f, CharHealth, (float)LEVEL_GOD);
+			if (obj[i].getObjLife() > 0.f)
+			{
+				g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_OBJECTS_SIZE*0.8), pos.z, (float)MAX_OBJECTS_SIZE, 5, 0.f, 0.f, 1.f, 1.f, CharHealth, (float)LEVEL_GOD);
+			}
 		}
+	}
+	else if (Object_Type == OBJECT_SKYCHARACTER)
+	{
+		for (int i = 0; i < MAX_SKYOBJECTS_COUNT; ++i)
+		{
+			int DrawskyObjCheck = 0;
+			Data pos = skyObj[i].getPosition();
+			Data rgb = skyObj[i].getRGB();
+			float CharHealth = skyObj[i].getObjLife() / MAX_SKYOBJECTS_LIFE;
+
+			if (skyObj[i].getTeamNum() == 1)
+			{
+				if (skyObj[i].getDirection().x > 0)
+				{
+					g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, SkyCharater1Img, (int)skyObj[i].getTimer(), 2, 3, 4, (float)LEVEL_SKY);
+				}
+				else if (skyObj[i].getDirection().x < 0)
+				{
+					g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, SkyCharater1Img, (int)skyObj[i].getTimer(), 1, 3, 4, (float)LEVEL_SKY);
+				}
+				if (skyObj[i].getObjLife() > 0.f) {	//체력이 있는 아이만 체력바 존재
+					g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_SKYOBJECTS_SIZE *0.8), pos.z, (float)MAX_SKYOBJECTS_SIZE, 5, 1.f, 0.f, 0.f, 1.f, CharHealth, (float)LEVEL_GOD);
+				}
+			}else {
+				if (skyObj[i].getDirection().x > 0)
+				{
+					g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, SkyCharater2Img, (int)skyObj[i].getTimer(), 2, 3, 4, (float)LEVEL_SKY);
+				}
+				else if (skyObj[i].getDirection().x < 0)
+				{
+					g_Renderer->DrawTexturedRectSeq(pos.x, pos.y, pos.z, 50, rgb.x, rgb.y, rgb.z, rgb.s, SkyCharater2Img, (int)skyObj[i].getTimer(), 1, 3, 4, (float)LEVEL_SKY);
+				}
+				if (skyObj[i].getObjLife() > 0.f) {	//체력이 있는 아이만 체력바 존재
+					g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_SKYOBJECTS_SIZE *0.8), pos.z, (float)MAX_SKYOBJECTS_SIZE, 5, 0.f, 0.f, 1.f, 1.f, CharHealth, (float)LEVEL_GOD);
+				}
+			}
+			if (timeSet > 1000)
+			{
+				for (int j = 0; j < MAX_SKYOBJECTS_COUNT; ++j)
+				{
+					//if (skyObj[j].getPosition().s <= 0.f)
+					if (skyObj[j].getObjLife() <= 0.f)
+					{
+						DrawskyObjCheck = SkyAiCharCount;
+						SkyAiCharCount = j;
+						break;
+					}
+				}
+				if (skyObj[SkyAiCharCount].getPosition().s == MAX_SKYOBJECTS_SIZE)
+				{
+					continue;
+				}
+				float checkX = 1;
+				if (rand() % 2 == 1)
+				{
+					checkX *= -1;
+				}
+				Data tempDirec = { checkX ,0.f,0.f,0.f };
+				skyObj[SkyAiCharCount].setDirection(tempDirec);
+				skyObj[SkyAiCharCount].setTimer(0.f);
+				skyObj[SkyAiCharCount].fixedObjLife(MAX_SKYOBJECTS_LIFE);
+				if (SkyAiCharCount < (MAX_SKYOBJECTS_COUNT / 2))
+				{
+					Data TEAM1SkyCharPos = { (float)(-250 + (rand() % MAX_SCREEN_WIDTH)),(MAX_SCEEN_HEIGHT * 0.25f),0.0f,(float)MAX_SKYOBJECTS_SIZE };
+					Data TEAM1SkyCharPosColor = { 1.f,0.f,0.f,1.f };
+					skyObj[SkyAiCharCount].setPosition(TEAM1SkyCharPos);
+					skyObj[SkyAiCharCount].setTeamNum(1);
+					skyObj[SkyAiCharCount].setRGB(TEAM1SkyCharPosColor);
+				}
+				else
+				{
+					Data TEAM2SkyCharPos = { (float)(-250 + (rand() % MAX_SCREEN_WIDTH)),-(MAX_SCEEN_HEIGHT * 0.25f),0.0f,(float)MAX_SKYOBJECTS_SIZE };
+					Data TEAM2SkyCharPosColor = { 0.f,0.f,1.f,1.f };
+					skyObj[SkyAiCharCount].setPosition(TEAM2SkyCharPos);
+					skyObj[SkyAiCharCount].setTeamNum(2);
+					skyObj[SkyAiCharCount].setRGB(TEAM2SkyCharPosColor);
+				}
+				SkyAiCharCount++;
+				if (SkyAiCharCount >= MAX_SKYOBJECTS_COUNT)
+				{
+					SkyAiCharCount = 0;
+				}
+				timeSet = 0;
+			}
+		}
+
 	}
 	else if (Object_Type == OBJECT_BUILDING)
 	{
@@ -476,12 +654,18 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 			if (i < 3)
 			{
 				g_Renderer->DrawTexturedRect(pos.x, pos.y, pos.z, pos.s, 1.f, 1.f, 1.f, 1.f, team1BulidingImg, LEVEL_GOD);
-				g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_BUILDING_SIZE*0.6), pos.z, (float)(MAX_BUILDING_SIZE*0.6), 5.f, 1.f, 0.f, 0.f, 1.f, BuildHealth, LEVEL_GOD);
+				if (obj_BUILDING[i].getObjLife() > 0.f)
+				{
+					g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_BUILDING_SIZE*0.6), pos.z, (float)(MAX_BUILDING_SIZE*0.6), 5.f, 1.f, 0.f, 0.f, 1.f, BuildHealth, LEVEL_GOD);
+				}
 			}
 			else
 			{
 				g_Renderer->DrawTexturedRect(pos.x, pos.y, pos.z, pos.s, 1.f, 1.f, 1.f, 1.f, team2BulidingImg, LEVEL_GOD);
-				g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_BUILDING_SIZE*0.6), pos.z, (float)(MAX_BUILDING_SIZE*0.6), 5.f, 0.f, 0.f, 1.f, 1.f, BuildHealth, LEVEL_GOD);
+				if (obj_BUILDING[i].getObjLife() > 0.f)
+				{
+					g_Renderer->DrawSolidRectGauge(pos.x, pos.y + (float)(MAX_BUILDING_SIZE*0.6), pos.z, (float)(MAX_BUILDING_SIZE*0.6), 5.f, 0.f, 0.f, 1.f, 1.f, BuildHealth, LEVEL_GOD);
+				}
 			}
 		}
 
@@ -520,7 +704,7 @@ void SceneMgr::ObjectDraw(int Object_Type, float& timeSet) {
 					{
 						checkY *= -1;
 					}
-					Data tempDirec = { (float)(rand()%3)-1 ,checkY,0.f,0.f };	//tempDirec.x 의 값은 -1,0,1중 나올 수있도록 구현 tempDirec.y는 -1,1만 나오도록 구현
+					Data tempDirec = { (float)(rand() % 3) - 1 ,checkY,0.f,0.f };	//tempDirec.x 의 값은 -1,0,1중 나올 수있도록 구현 tempDirec.y는 -1,1만 나오도록 구현
 					obj_BULLET[bulletCount].setDirection(tempDirec);
 					obj_BULLET[bulletCount].setTimer(0.f);
 					obj_BULLET[bulletCount].fixedObjLife(MAX_BULLET_LIFE);

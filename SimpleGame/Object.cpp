@@ -126,6 +126,10 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 	{
 		timer += (elapsedTime*0.17);
 		objSpeed = 300.f;
+	}else if (OBJECT_TYPE == OBJECT_SKYCHARACTER)
+	{
+		timer += (elapsedTime*0.17);
+		objSpeed = 500.f;
 	}
 	else if (OBJECT_TYPE == OBJECT_BULLET)
 	{
@@ -142,7 +146,7 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 		timer += (elapsedTime*0.0005);
 	}
 
-	elapsedTime = elapsedTime / 1000.f;
+	elapsedTime = elapsedTime * 0.001f;
 
 	//캐릭터 라이프타임 잠시 주석처리
 	/*if (!(lifeTime <= 0.0f) && OBJECT_TYPE == OBJECT_CHARACTER)
@@ -170,6 +174,36 @@ void Object::Update(float elapsedTime, int OBJECT_TYPE)
 			vY = -vY;
 			vX = (float)(rand() % 2);
 		}
+		//살아있는 객체가 예상치못한 비비기로 인한 게임 구역 밖을 벗어났을 시에 관한 체크. 죽음처리 후 재생성
+		if (((Position.x < (-screenX) && Position.y > screenY) || (Position.x < (-screenX) && Position.y < (-screenY))) && objLife > 0.f)
+		{
+			cout << "왼 벽으로 넘어감" << endl;
+			objLife = (-1.f);
+		}if (((Position.x > screenX && Position.y > screenY) || (Position.x > screenX && Position.y < (-screenY))) && objLife > 0.f)
+		{
+			cout << "오른 벽으로 넘어감" << endl;
+			objLife = (-1.f);
+		}
+	}else if (OBJECT_TYPE == OBJECT_SKYCHARACTER)
+	{
+		Position.x = Position.x + vX * elapsedTime * objSpeed;  //이동구현
+		//Position.y = Position.y + vY * elapsedTime * objSpeed;	//이동구현
+		if (Position.x > screenX) {
+			vX = -vX;
+			vY = (float)(rand() % 2);
+		}
+		if (Position.x < (-screenX)) {
+			vX = -vX;
+			vY = (float)(rand() % 2);
+		}
+		/*if (Position.y > screenY) {
+			vY = -vY;
+			vX = (float)(rand() % 2);
+		}
+		if (Position.y < (-screenY)) {
+			vY = -vY;
+			vX = (float)(rand() % 2);
+		}*/
 		//살아있는 객체가 예상치못한 비비기로 인한 게임 구역 밖을 벗어났을 시에 관한 체크. 죽음처리 후 재생성
 		if (((Position.x < (-screenX) && Position.y > screenY) || (Position.x < (-screenX) && Position.y < (-screenY))) && objLife > 0.f)
 		{
